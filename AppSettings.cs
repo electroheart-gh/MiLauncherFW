@@ -17,10 +17,10 @@ namespace MiLauncher
         public AppSettings()
         {
             // Default Settings
-            TargetFolders = [
+            TargetFolders = new List<string> {
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-                ];
+            };
             MinMigemoLength = 3;
             MaxListLine = 30;
             MaxListWidth = 1000;

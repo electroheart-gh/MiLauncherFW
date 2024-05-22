@@ -45,13 +45,15 @@ namespace MiLauncher
 
         private void DisplayColumnHeader(int index)
         {
-            Header.Text = SortKey switch {
-                SortKeyOption.FullPathName => "Path",
-                _ => Header.Text = string.Format("{0}: {1}", SortKey.ToString(), ListViewItems[index].SortValue(SortKey))
-            };
+            if (SortKey == SortKeyOption.FullPathName) {
+                Header.Text = "Path";
+            }
+            else {
+                Header.Text = string.Format("{0}: {1}", SortKey.ToString(), ListViewItems[index].SortValue(SortKey));
+            }
 
             // If any, display additional information in column header
-            if (ModeCaptions is not (null, null)) {
+            if (ModeCaptions != (null, null)) {
                 Header.Text += "  " + ModeCaptions.Item1;
                 var baseWidth = TextRenderer.MeasureText(Header.Text, listView.Font).Width;
                 Header.Text += FileStats.GetShortenedString(ModeCaptions.Item2, baseWidth) ?? ModeCaptions.Item2;
@@ -88,7 +90,7 @@ namespace MiLauncher
 
         internal void SetVirtualList(List<FileStats> sourceItems = null)
         {
-            sourceItems ??= ListViewItems;
+            sourceItems = sourceItems ?? ListViewItems;
             ListViewItems = sourceItems.OrderByDescending(x => x.SortValue(SortKey)).ToList();
             listView.VirtualListSize = ListViewItems.Count;
         }
@@ -216,12 +218,20 @@ namespace MiLauncher
 
         internal void CycleSortKey()
         {
-            SortKey = SortKey switch {
-                SortKeyOption.Priority => SortKeyOption.ExecTime,
-                SortKeyOption.ExecTime => SortKeyOption.UpdateTime,
-                SortKeyOption.UpdateTime => SortKeyOption.FullPathName,
-                _ => SortKeyOption.Priority,
-            };
+            switch (SortKey) {
+                case SortKeyOption.Priority:
+                    SortKey = SortKeyOption.ExecTime;
+                    break;
+                case SortKeyOption.ExecTime:
+                    SortKey = SortKeyOption.UpdateTime;
+                    break;
+                case SortKeyOption.UpdateTime:
+                    SortKey = SortKeyOption.FullPathName;
+                    break;
+                default:
+                    SortKey = SortKeyOption.Priority;
+                    break;
+            }
             SetVirtualList();
         }
 

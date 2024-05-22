@@ -18,10 +18,10 @@ namespace MiLauncher
         // Constant
         // TODO: Consider to make SearchedFileListDataFile configurable
         private const string searchedFileListDataFile = "SearchedFileList.dat";
-        private const char wordSeparator = ' ';
         private const int CS_DROPSHADOW = 0x00020000;
 
         // Static Variables
+        private readonly char[] wordSeparator = { ' ' };
         internal static Color colorPattern1 = ColorTranslator.FromHtml("#28385E");
         internal static Color colorPattern2 = ColorTranslator.FromHtml("#516C8D");
         internal static Color colorPattern3 = ColorTranslator.FromHtml("#6A91C1");
@@ -69,7 +69,7 @@ namespace MiLauncher
             listForm.ListViewKeyDown = listView_KeyDown;
 
             // Load File Set (HashSet<FileStats>)
-            searchedFileSet = SettingManager.LoadSettings<HashSet<FileStats>>(searchedFileListDataFile) ?? [];
+            searchedFileSet = SettingManager.LoadSettings<HashSet<FileStats>>(searchedFileListDataFile) ?? new HashSet<FileStats>();
 
             // TODO: Make it method
             // Search Files Async
@@ -112,7 +112,7 @@ namespace MiLauncher
             var patternsTransformed = patternsInCmdBox.Select(transformByMigemo).ToArray();
 
             // Set baseFileSet depending on crawlMode or not
-            HashSet<FileStats> baseFileSet = currentMode.GetCrawlFileSet() ?? searchedFileSet;
+            var baseFileSet = currentMode.GetCrawlFileSet() ?? searchedFileSet;
 
             tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
@@ -128,17 +128,16 @@ namespace MiLauncher
             Activate();
             return;
 
-            static string transformByMigemo(string pattern)
+            string transformByMigemo(string pattern)
             {
-                using (Migemo migemo = new("./Dict/migemo-dict")) {
-                    // TODO: make it config or const
+                using (var migemo = new Migemo("./Dict/migemo-dict")) {
                     // TODO: Consider to make MatchCondition class,
                     // which should have a method to parse string to select condition
-                    var prefix = "-!/".Contains(pattern[..1]) ? pattern[..1] : "";
+                    var prefix = "-!/".Contains(pattern.Substring(0, 1)) ? pattern.Substring(0, 1) : "";
                     if (pattern.Length - prefix.Length < Program.appSettings.MinMigemoLength) {
                         return pattern;
                     }
-                    return prefix + migemo.GetRegex(pattern[prefix.Length..]);
+                    return prefix + migemo.GetRegex(pattern.Substring(prefix.Length));
                 };
             }
         }
@@ -236,7 +235,7 @@ namespace MiLauncher
             // backward word
             if (e.KeyCode == Keys.B && e.Alt) {
                 Regex pattern = PreviousWordRegex();
-                Match m = pattern.Match(cmdBox.Text[..cmdBox.SelectionStart]);
+                Match m = pattern.Match(cmdBox.Text.Substring(0,cmdBox.SelectionStart));
                 cmdBox.SelectionStart = m.Index;
             }
             // delete word
@@ -250,8 +249,8 @@ namespace MiLauncher
             if (e.KeyCode == Keys.H && e.Alt) {
                 // Using Non-backtracking and negative lookahead assertion of Regex
                 Regex pattern = PreviousWordRegex();
-                var firstHalf = pattern.Replace(cmdBox.Text[..cmdBox.SelectionStart], "");
-                cmdBox.Text = firstHalf + cmdBox.Text[cmdBox.SelectionStart..];
+                var firstHalf = pattern.Replace(cmdBox.Text.Substring(0,cmdBox.SelectionStart), "");
+                cmdBox.Text = firstHalf + cmdBox.Text.Substring(cmdBox.SelectionStart);
                 cmdBox.SelectionStart = firstHalf.Length;
             }
             // Cycle ListView sort key
@@ -372,11 +371,17 @@ namespace MiLauncher
             SettingManager.SaveSettings(searchedFileSet, searchedFileListDataFile);
         }
 
-        [GeneratedRegex(@"\w*\W*")]
-        private static partial Regex NextWordRegex();
+        //[GeneratedRegex(@"\w*\W*")]
+        private static Regex NextWordRegex()
+        {
+            return new Regex(@"\w*\W*");
+        }
 
         // Using Non-backtracking and negative lookahead assertion of Regex
-        [GeneratedRegex(@"(?>\w*\W*)(?!\w)")]
-        private static partial Regex PreviousWordRegex();
+        private static Regex PreviousWordRegex()
+        {
+            return new Regex(@"(?>\w*\W*)(?!\w)");
+        }
+
     }
 }

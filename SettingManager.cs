@@ -10,7 +10,7 @@ namespace MiLauncher
     // Used to save(load) both a set of searched files and Application Settings
     internal class SettingManager
     {
-        private static readonly JsonSerializerOptions s_writeOptions = new() {
+        private static readonly JsonSerializerOptions s_writeOptions = new JsonSerializerOptions() {
             WriteIndented = true
         };
 

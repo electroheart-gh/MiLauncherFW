@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Text.Json.Serialization;
 using System.Windows.Forms;
@@ -49,13 +50,18 @@ namespace MiLauncher
 
         internal object SortValue(SortKeyOption key)
         {
-            return key switch {
-                SortKeyOption.FullPathName => FullPathName,
-                SortKeyOption.UpdateTime => UpdateTime,
-                SortKeyOption.ExecTime => ExecTime,
-                _ => Priority,
-            };
+            switch (key) {
+                case SortKeyOption.FullPathName:
+                    return FullPathName;
+                case SortKeyOption.UpdateTime:
+                    return UpdateTime;
+                case SortKeyOption.ExecTime:
+                    return ExecTime;
+                default:
+                    return Priority;
+            }
         }
+
         internal static string GetShortenedString(string str, int offset = 0)
         {
             // TODO: CMIC High Priority
@@ -66,7 +72,7 @@ namespace MiLauncher
             if (TextRenderer.MeasureText(str, font).Width < realWidth) return null;
 
             while (TextRenderer.MeasureText(str + "...", font).Width > realWidth) {
-                str = str[1..];
+                str = str.Substring(1);
             }
             return "..." + str;
         }

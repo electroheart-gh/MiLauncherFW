@@ -31,18 +31,18 @@ namespace MiLauncher
                 var upperPath = Path.GetDirectoryName(crawlMode.CrawlPath);
                 CrawlMode crawlResult = CrawlMode.Crawl(upperPath, sourceFileSet);
                 crawlMode = (crawlResult?.Status == ModeStatus.Active) ? crawlResult : crawlMode;
-                return crawlResult is not null;
+                return crawlResult != null;
             }
             else {
                 crawlMode = CrawlMode.Crawl(Path.GetDirectoryName(itemPath), sourceFileSet);
-                return crawlMode is not null;
+                return crawlMode != null;
             }
         }
         internal bool CrawlDown(string itemPath, HashSet<FileStats> sourceFileSet)
         {
             CrawlMode crawlResult = CrawlMode.Crawl(itemPath, sourceFileSet);
             crawlMode = (crawlResult?.Status == ModeStatus.Active) ? crawlResult : crawlMode;
-            return crawlMode is not null;
+            return crawlMode != null;
         }
         internal bool IsCrawlMode()
         {
@@ -81,7 +81,7 @@ namespace MiLauncher
         }
         internal void ActivateRestore()
         {
-            restoreMode ??= new RestoreMode();
+            restoreMode = restoreMode ?? new RestoreMode();
             restoreMode.Status = ModeStatus.Active;
         }
         internal SortKeyOption RestoreSortKey()

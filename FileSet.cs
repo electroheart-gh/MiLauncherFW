@@ -22,7 +22,7 @@ namespace MiLauncher
             }
             catch (OperationCanceledException) {
                 // Debug.WriteLine("cancel occurs Select");
-                return [];
+                return new List<FileStats>();
             }
         }
 
@@ -30,23 +30,40 @@ namespace MiLauncher
         private static bool IsMatchAllPatterns(this FileStats fileStats, IEnumerable<string> patterns)
         {
             // TODO: consider to use LINQ
+            //foreach (var pattern in patterns) {
+            //    if (!(pattern[..1] switch {
+            //        "-" => !IsMatchPattern(fileStats.FullPathName, pattern[1..]),
+            //        "!" => !IsMatchPattern(fileStats.FileName, pattern[1..]),
+            //        "/" => IsMatchPattern(fileStats.FullPathName, pattern[1..]),
+            //        _ => IsMatchPattern(fileStats.FileName, pattern),
+            //    })) {
+            //        return false;
+            //    }
+            //}
+
             foreach (var pattern in patterns) {
-                if (!(pattern[..1] switch {
-                    "-" => !IsMatchPattern(fileStats.FullPathName, pattern[1..]),
-                    "!" => !IsMatchPattern(fileStats.FileName, pattern[1..]),
-                    "/" => IsMatchPattern(fileStats.FullPathName, pattern[1..]),
-                    _ => IsMatchPattern(fileStats.FileName, pattern),
-                })) {
-                    return false;
+                switch (pattern.Substring(0, 1)) {
+                    case "-":
+                        if (IsMatchPattern(fileStats.FullPathName, pattern.Substring(1))) return false;
+                        break;
+                    case "!":
+                        if (IsMatchPattern(fileStats.FileName, pattern.Substring(1))) return false;
+                        break;
+                    case "/":
+                        if (!IsMatchPattern(fileStats.FullPathName, pattern.Substring(1))) return false;
+                        break;
+                    default:
+                        if (!IsMatchPattern(fileStats.FileName, pattern)) return false;
+                        break;
                 }
             }
             return true;
 
-            static bool IsMatchPattern(string name, string pattern)
+            bool IsMatchPattern(string name, string pattern)
             {
                 // Simple search
                 if (pattern.Length < Program.appSettings.MinMigemoLength) {
-                    return name.Contains(pattern, StringComparison.OrdinalIgnoreCase);
+                    return name.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) != -1;
                 }
                 // Migemo search
                 else {
@@ -54,7 +71,7 @@ namespace MiLauncher
                         return Regex.IsMatch(name, pattern.ToString(), RegexOptions.IgnoreCase);
                     }
                     catch (ArgumentException) {
-                        return name.Contains(pattern, StringComparison.OrdinalIgnoreCase);
+                        return name.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) != -1;
                     }
                 }
             }
