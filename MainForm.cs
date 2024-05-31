@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace MiLauncher
+namespace MiLauncherFW
 {
     /// <summary>
     /// Represents a main window that accept user interface and delegates tasks to other windows/classes.
@@ -108,16 +108,20 @@ namespace MiLauncher
             }
 
             // Added ToArray() to apply eager evaluation because lazy evaluation makes it too slow 
-            var patternsInCmdBox = cmdBox.Text.Split(wordSeparator, StringSplitOptions.RemoveEmptyEntries);
-            var patternsTransformed = patternsInCmdBox.Select(transformByMigemo).ToArray();
+            //var patternsInCmdBox = cmdBox.Text.Split(wordSeparator, StringSplitOptions.RemoveEmptyEntries);
+            //var patternsTransformed = patternsInCmdBox.Select(transformByMigemo).ToArray();
+
+            var filters = new FileNameFilter(cmdBox.Text);
 
             // Set baseFileSet depending on crawlMode or not
             var baseFileSet = currentMode.GetCrawlFileSet() ?? searchedFileSet;
 
             tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
+            //var filteredList = await Task.Run
+            //    (() => baseFileSet.FilterWithCancellation(patternsTransformed, token), token);
             var filteredList = await Task.Run
-                (() => baseFileSet.FilterWithCancellation(patternsTransformed, token), token);
+                (() => baseFileSet.FilterWithCancellation(filters, token), token);
             if (token.IsCancellationRequested) return;
 
             listForm.SetVirtualList(filteredList);
@@ -358,8 +362,10 @@ namespace MiLauncher
 
         private void CloseMainForm()
         {
+            // Force to exit Crawl mode regardless of any mode
             currentMode.ExitCrawl();
 
+            // Activate Restore mode to reset some properties
             currentMode.ActivateRestore();
             listForm.ModeCaptions = (null, null);
             listForm.SortKey = currentMode.RestoreSortKey();

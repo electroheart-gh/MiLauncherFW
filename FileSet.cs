@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace MiLauncher
+namespace MiLauncherFW
 {
     /// <summary>
     /// Provides static methods to handle set or list of <see cref="FileStats"/>
@@ -19,6 +19,20 @@ namespace MiLauncher
                 return new List<FileStats>(
                     sourceFiles.AsParallel().WithCancellation(token)
                                .Where(x => x.IsMatchAllPatterns(patterns)));
+            }
+            catch (OperationCanceledException) {
+                // Debug.WriteLine("cancel occurs Select");
+                return new List<FileStats>();
+            }
+        }
+
+        internal static List<FileStats> FilterWithCancellation
+            (this IEnumerable<FileStats> sourceFiles, FileNameFilter filters, CancellationToken token)
+        {
+            try {
+                return new List<FileStats>(
+                    sourceFiles.AsParallel().WithCancellation(token)
+                               .Where(x => filters.MatchedBy(x)));
             }
             catch (OperationCanceledException) {
                 // Debug.WriteLine("cancel occurs Select");
