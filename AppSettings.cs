@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MiLauncher
+namespace MiLauncherFW
 {
     /// <summary>
     /// Stores all user settings that is supposed to be used with <see cref="SettingManager"/>

@@ -4,7 +4,7 @@ using System.IO;
 using System.Text.Json.Serialization;
 using System.Windows.Forms;
 
-namespace MiLauncher
+namespace MiLauncherFW
 {
     /// <summary>
     /// Stores information of each file and provides methods to access them.

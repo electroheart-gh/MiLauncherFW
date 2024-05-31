@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace MiLauncher
+namespace MiLauncherFW
 {
     /// <summary>
     /// Represents a window of the file list that has responsibilities

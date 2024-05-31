@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MiLauncher
+namespace MiLauncherFW
 {
     /// <summary>
     /// Provides functionality and information to control Crawl mode, 

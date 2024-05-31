@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace MiLauncher
+namespace MiLauncherFW
 {
     /// <summary>
     /// グローバルホットキーを登録するクラス。

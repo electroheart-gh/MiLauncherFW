@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace MiLauncher
+namespace MiLauncherFW
 {
     /// <summary>
     /// Provides functionality to integrates control of <see cref="CrawlMode"/>,

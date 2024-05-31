@@ -1,4 +1,4 @@
-﻿namespace MiLauncher
+﻿namespace MiLauncherFW
 {
     partial class MainForm
     {

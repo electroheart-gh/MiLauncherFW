@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace MiLauncher
+namespace MiLauncherFW
 {
     /// <summary>
     /// Provides static methods to search files recursively and return them 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MiLauncher
+namespace MiLauncherFW
 {
     /// <summary>
     /// Stores information and status to control Restore mode, 
