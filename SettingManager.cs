@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Unicode;
 
-namespace MiLauncher
+namespace MiLauncherFW
 {
     /// <summary>
     /// Provides functionality to save(load) an object to to(from) specified file with <see cref="JsonSerializer"/>."
@@ -17,6 +19,16 @@ namespace MiLauncher
         public static void SaveSettings<T>(T settingsObject, string path)
         {
             File.WriteAllText(path, JsonSerializer.Serialize(settingsObject, s_writeOptions));
+        }
+
+        public static void SaveSettingsNoEscape<T>(T settingsObject, string path)
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions() {
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+                WriteIndented = true
+            };
+
+            File.WriteAllText(path, JsonSerializer.Serialize(settingsObject, options));
         }
 
         public static T LoadSettings<T>(string path)
