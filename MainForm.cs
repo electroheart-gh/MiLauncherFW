@@ -1,5 +1,4 @@
-﻿using KaoriYa.Migemo;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -107,10 +106,6 @@ namespace MiLauncherFW
                 return;
             }
 
-            // Added ToArray() to apply eager evaluation because lazy evaluation makes it too slow 
-            //var patternsInCmdBox = cmdBox.Text.Split(wordSeparator, StringSplitOptions.RemoveEmptyEntries);
-            //var patternsTransformed = patternsInCmdBox.Select(transformByMigemo).ToArray();
-
             var filters = new FileNameFilter(cmdBox.Text);
 
             // Set baseFileSet depending on crawlMode or not
@@ -118,8 +113,6 @@ namespace MiLauncherFW
 
             tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
-            //var filteredList = await Task.Run
-            //    (() => baseFileSet.FilterWithCancellation(patternsTransformed, token), token);
             var filteredList = await Task.Run
                 (() => baseFileSet.FilterWithCancellation(filters, token), token);
             if (token.IsCancellationRequested) return;
@@ -131,19 +124,6 @@ namespace MiLauncherFW
 
             Activate();
             return;
-
-            string transformByMigemo(string pattern)
-            {
-                using (var migemo = new Migemo("./Dict/migemo-dict")) {
-                    // TODO: Consider to make MatchCondition class,
-                    // which should have a method to parse string to select condition
-                    var prefix = "-!/".Contains(pattern.Substring(0, 1)) ? pattern.Substring(0, 1) : "";
-                    if (pattern.Length - prefix.Length < Program.appSettings.MinMigemoLength) {
-                        return pattern;
-                    }
-                    return prefix + migemo.GetRegex(pattern.Substring(prefix.Length));
-                };
-            }
         }
 
         // Implement Ctrl- and Alt- commands in KeyDown event
@@ -239,7 +219,7 @@ namespace MiLauncherFW
             // backward word
             if (e.KeyCode == Keys.B && e.Alt) {
                 Regex pattern = PreviousWordRegex();
-                Match m = pattern.Match(cmdBox.Text.Substring(0,cmdBox.SelectionStart));
+                Match m = pattern.Match(cmdBox.Text.Substring(0, cmdBox.SelectionStart));
                 cmdBox.SelectionStart = m.Index;
             }
             // delete word
@@ -253,7 +233,7 @@ namespace MiLauncherFW
             if (e.KeyCode == Keys.H && e.Alt) {
                 // Using Non-backtracking and negative lookahead assertion of Regex
                 Regex pattern = PreviousWordRegex();
-                var firstHalf = pattern.Replace(cmdBox.Text.Substring(0,cmdBox.SelectionStart), "");
+                var firstHalf = pattern.Replace(cmdBox.Text.Substring(0, cmdBox.SelectionStart), "");
                 cmdBox.Text = firstHalf + cmdBox.Text.Substring(cmdBox.SelectionStart);
                 cmdBox.SelectionStart = firstHalf.Length;
             }

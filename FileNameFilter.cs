@@ -1,11 +1,7 @@
 ﻿using KaoriYa.Migemo;
-using MiLauncherFW;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace MiLauncherFW
 {
@@ -25,8 +21,7 @@ namespace MiLauncherFW
         static string MigemoTransform(string s)
         {
             using (var migemo = new Migemo("./Dict/migemo-dict")) {
-                // TODO: Consider to make MatchCondition class,
-                // which should have a method to parse string to select condition
+                // TODO: CMICst
                 var prefix = "-!/".Contains(s.Substring(0, 1)) ? s.Substring(0, 1) : "";
                 return s.Length - prefix.Length < Program.appSettings.MinMigemoLength ?
                     s : prefix + migemo.GetRegex(s.Substring(prefix.Length));
@@ -37,6 +32,7 @@ namespace MiLauncherFW
         {
             foreach (var filter in regexFilters) {
                 switch (filter.Substring(0, 1)) {
+                    // TODO: CMICst
                     case "-":
                         if (IsMigemoMatch(fileStats.FullPathName, filter.Substring(1))) return false;
                         break;

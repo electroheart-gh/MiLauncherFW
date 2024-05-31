@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace MiLauncherFW
@@ -12,20 +11,6 @@ namespace MiLauncherFW
     /// </summary>
     internal static class FileSet
     {
-        internal static List<FileStats> FilterWithCancellation
-            (this IEnumerable<FileStats> sourceFiles, IEnumerable<string> patterns, CancellationToken token)
-        {
-            try {
-                return new List<FileStats>(
-                    sourceFiles.AsParallel().WithCancellation(token)
-                               .Where(x => x.IsMatchAllPatterns(patterns)));
-            }
-            catch (OperationCanceledException) {
-                // Debug.WriteLine("cancel occurs Select");
-                return new List<FileStats>();
-            }
-        }
-
         internal static List<FileStats> FilterWithCancellation
             (this IEnumerable<FileStats> sourceFiles, FileNameFilter filters, CancellationToken token)
         {
@@ -37,57 +22,6 @@ namespace MiLauncherFW
             catch (OperationCanceledException) {
                 // Debug.WriteLine("cancel occurs Select");
                 return new List<FileStats>();
-            }
-        }
-
-        // TODO: consider to create MatchCondition class and move there
-        private static bool IsMatchAllPatterns(this FileStats fileStats, IEnumerable<string> patterns)
-        {
-            // TODO: consider to use LINQ
-            //foreach (var pattern in patterns) {
-            //    if (!(pattern[..1] switch {
-            //        "-" => !IsMatchPattern(fileStats.FullPathName, pattern[1..]),
-            //        "!" => !IsMatchPattern(fileStats.FileName, pattern[1..]),
-            //        "/" => IsMatchPattern(fileStats.FullPathName, pattern[1..]),
-            //        _ => IsMatchPattern(fileStats.FileName, pattern),
-            //    })) {
-            //        return false;
-            //    }
-            //}
-
-            foreach (var pattern in patterns) {
-                switch (pattern.Substring(0, 1)) {
-                    case "-":
-                        if (IsMatchPattern(fileStats.FullPathName, pattern.Substring(1))) return false;
-                        break;
-                    case "!":
-                        if (IsMatchPattern(fileStats.FileName, pattern.Substring(1))) return false;
-                        break;
-                    case "/":
-                        if (!IsMatchPattern(fileStats.FullPathName, pattern.Substring(1))) return false;
-                        break;
-                    default:
-                        if (!IsMatchPattern(fileStats.FileName, pattern)) return false;
-                        break;
-                }
-            }
-            return true;
-
-            bool IsMatchPattern(string name, string pattern)
-            {
-                // Simple search
-                if (pattern.Length < Program.appSettings.MinMigemoLength) {
-                    return name.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) != -1;
-                }
-                // Migemo search
-                else {
-                    try {
-                        return Regex.IsMatch(name, pattern.ToString(), RegexOptions.IgnoreCase);
-                    }
-                    catch (ArgumentException) {
-                        return name.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) != -1;
-                    }
-                }
             }
         }
 
