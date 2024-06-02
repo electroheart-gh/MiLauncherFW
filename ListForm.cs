@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -95,19 +93,27 @@ namespace MiLauncherFW
             listView.VirtualListSize = ListViewItems.Count;
         }
 
-        internal FileStats ExecItem()
+        //internal FileStats ExecItem()
+        //{
+        //    if (Visible & listView.VirtualListSize > 0) {
+        //        try {
+        //            FileStats selectedFileStats = ListViewItems[VirtualListIndex];
+        //            Process.Start("explorer.exe", selectedFileStats.FullPathName);
+        //            Visible = false;
+        //            return selectedFileStats;
+        //        }
+        //        catch (FileNotFoundException) {
+        //            Debug.WriteLine("File Not Found");
+        //        }
+        //    }
+        //    return null;
+        //}
+
+        internal FileStats GetItem()
         {
             if (Visible & listView.VirtualListSize > 0) {
-                try {
-                    //FileStats selectedFileInfo = ListViewSource.ElementAt(VirtualListIndex);
-                    FileStats selectedFileStats = ListViewItems[VirtualListIndex];
-                    Process.Start("explorer.exe", selectedFileStats.FullPathName);
-                    Visible = false;
-                    return selectedFileStats;
-                }
-                catch (FileNotFoundException) {
-                    Debug.WriteLine("File Not Found");
-                }
+                FileStats selectedFileStats = ListViewItems[VirtualListIndex];
+                return selectedFileStats;
             }
             return null;
         }

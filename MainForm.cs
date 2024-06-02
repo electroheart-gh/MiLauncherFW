@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -145,7 +147,9 @@ namespace MiLauncherFW
         // which requires to check KeyChar of Ctrl-(char) in advance of coding
         private void cmdBox_KeyDown(object sender, KeyEventArgs e)
         {
-            // TODO: implement keymap class to make keymap configurable
+            // TODO: Implement keymap class to make keymap configurable
+            // TODO: <CAUTION> No else-if statements !!!
+            // TODO: <CAUTION> No check for unnecessary Key modifiers !!!
 
             // Close MainForm
             if (e.KeyCode == Keys.Escape) {
@@ -153,7 +157,16 @@ namespace MiLauncherFW
             }
             // Exec file with associated app
             if (e.KeyCode == Keys.Enter || (e.KeyCode == Keys.M && e.Control)) {
-                var execFileStats = listForm.ExecItem();
+                var execFileStats = listForm.GetItem();
+                if (execFileStats is null) return;
+
+                try {
+                    Process.Start("explorer.exe", execFileStats.FullPathName);
+                }
+                catch (FileNotFoundException) {
+                    Debug.WriteLine("File Not Found");
+                    return;
+                }
 
                 // TODO: CMIC priority +1
                 var fileStats = searchedFileSet.FirstOrDefault(x => x.FullPathName == execFileStats.FullPathName);
@@ -169,6 +182,14 @@ namespace MiLauncherFW
                 }
                 CloseMainForm();
             }
+            // Copy file path to clipboard
+            if (e.KeyCode == Keys.C && e.Control && !e.Shift) {
+                Clipboard.SetText(listForm.GetItem().FullPathName);
+            }
+            //// Copy file path in UNC to clipboard
+            //if (e.KeyCode == Keys.C && e.Control && e.Shift) {
+            //    Clipboard.SetText(ConvertToUNC(listForm.GetItem().FullPathName));
+            //}
             // beginning of line
             if (e.KeyCode == Keys.A && e.Control) {
                 cmdBox.SelectionStart = 0;
