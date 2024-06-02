@@ -148,7 +148,6 @@ namespace MiLauncherFW
         private void cmdBox_KeyDown(object sender, KeyEventArgs e)
         {
             // TODO: Implement keymap class to make keymap configurable
-            // TODO: <CAUTION> No else-if statements !!!
             // TODO: <CAUTION> No check for unnecessary Key modifiers !!!
 
             // Close MainForm
@@ -156,7 +155,7 @@ namespace MiLauncherFW
                 CloseMainForm();
             }
             // Exec file with associated app
-            if (e.KeyCode == Keys.Enter || (e.KeyCode == Keys.M && e.Control)) {
+            else if (e.KeyCode == Keys.Enter || (e.KeyCode == Keys.M && e.Control)) {
                 var execFileStats = listForm.GetItem();
                 if (execFileStats is null) return;
 
@@ -183,7 +182,7 @@ namespace MiLauncherFW
                 CloseMainForm();
             }
             // Copy file path to clipboard
-            if (e.KeyCode == Keys.C && e.Control && !e.Shift) {
+            else if (e.KeyCode == Keys.C && e.Control && !e.Shift) {
                 Clipboard.SetText(listForm.GetItem().FullPathName);
             }
             //// Copy file path in UNC to clipboard
@@ -191,23 +190,23 @@ namespace MiLauncherFW
             //    Clipboard.SetText(ConvertToUNC(listForm.GetItem().FullPathName));
             //}
             // beginning of line
-            if (e.KeyCode == Keys.A && e.Control) {
+            else if (e.KeyCode == Keys.A && e.Control) {
                 cmdBox.SelectionStart = 0;
             }
             // end of line
-            if (e.KeyCode == Keys.E && e.Control) {
+            else if (e.KeyCode == Keys.E && e.Control) {
                 cmdBox.SelectionStart = cmdBox.Text.Length;
             }
             // forward char
-            if (e.KeyCode == Keys.F && e.Control) {
+            else if (e.KeyCode == Keys.F && e.Control) {
                 cmdBox.SelectionStart++;
             }
             // backward char
-            if (e.KeyCode == Keys.B && e.Control) {
+            else if (e.KeyCode == Keys.B && e.Control) {
                 cmdBox.SelectionStart = Math.Max(0, cmdBox.SelectionStart - 1);
             }
             // backspace
-            if (e.KeyCode == Keys.H && e.Control) {
+            else if (e.KeyCode == Keys.H && e.Control) {
                 var pos = cmdBox.SelectionStart;
                 if (pos > 0) {
                     cmdBox.Text = cmdBox.Text.Remove(pos - 1, 1);
@@ -215,7 +214,7 @@ namespace MiLauncherFW
                 }
             }
             // delete char
-            if (e.KeyCode == Keys.D && e.Control) {
+            else if (e.KeyCode == Keys.D && e.Control) {
                 var pos = cmdBox.SelectionStart;
                 if (pos < cmdBox.Text.Length) {
                     cmdBox.Text = cmdBox.Text.Remove(pos, 1);
@@ -223,34 +222,34 @@ namespace MiLauncherFW
                 }
             }
             // select next item
-            if (e.KeyCode == Keys.N && e.Control) {
+            else if (e.KeyCode == Keys.N && e.Control) {
                 listForm.SelectNextItem();
             }
             // select previous item
-            if (e.KeyCode == Keys.P && e.Control) {
+            else if (e.KeyCode == Keys.P && e.Control) {
                 listForm.SelectPreviousItem();
             }
             // forward word
-            if (e.KeyCode == Keys.F && e.Alt) {
+            else if (e.KeyCode == Keys.F && e.Alt) {
                 Regex pattern = NextWordRegex();
                 Match m = pattern.Match(cmdBox.Text, cmdBox.SelectionStart);
                 cmdBox.SelectionStart = Math.Max(m.Index + m.Length, cmdBox.SelectionStart);
             }
             // backward word
-            if (e.KeyCode == Keys.B && e.Alt) {
+            else if (e.KeyCode == Keys.B && e.Alt) {
                 Regex pattern = PreviousWordRegex();
                 Match m = pattern.Match(cmdBox.Text.Substring(0, cmdBox.SelectionStart));
                 cmdBox.SelectionStart = m.Index;
             }
             // delete word
-            if (e.KeyCode == Keys.D && e.Alt) {
+            else if (e.KeyCode == Keys.D && e.Alt) {
                 var cursorPosition = cmdBox.SelectionStart;
                 Regex pattern = NextWordRegex();
                 cmdBox.Text = pattern.Replace(cmdBox.Text, "", 1, cursorPosition);
                 cmdBox.SelectionStart = cursorPosition;
             }
             // backward delete word
-            if (e.KeyCode == Keys.H && e.Alt) {
+            else if (e.KeyCode == Keys.H && e.Alt) {
                 // Using Non-backtracking and negative lookahead assertion of Regex
                 Regex pattern = PreviousWordRegex();
                 var firstHalf = pattern.Replace(cmdBox.Text.Substring(0, cmdBox.SelectionStart), "");
@@ -259,14 +258,14 @@ namespace MiLauncherFW
             }
             // Cycle ListView sort key
             // Keys.Oemtilde indicates @ (at mark)
-            if (e.KeyCode == Keys.Oemtilde && e.Control) {
+            else if (e.KeyCode == Keys.Oemtilde && e.Control) {
                 if (!listForm.Visible) return;
 
                 listForm.CycleSortKey();
                 listForm.ShowAt();
             }
             // Crawl folder upwards
-            if (e.KeyCode == Keys.Oemcomma && e.Control) {
+            else if (e.KeyCode == Keys.Oemcomma && e.Control) {
                 if (!listForm.Visible) return;
 
                 // Try Crawl and check its return
@@ -285,7 +284,7 @@ namespace MiLauncherFW
                 Activate();
             }
             // Crawl folder downwards
-            if (e.KeyCode == Keys.OemPeriod && e.Control) {
+            else if (e.KeyCode == Keys.OemPeriod && e.Control) {
                 if (!listForm.Visible) return;
 
                 // Try Crawl and check its return
@@ -304,7 +303,7 @@ namespace MiLauncherFW
                 Activate();
             }
             // Exit crawl mode
-            if (e.KeyCode == Keys.G && e.Control) {
+            else if (e.KeyCode == Keys.G && e.Control) {
                 if (!listForm.Visible) return;
                 if (!currentMode.IsCrawlMode()) return;
 
