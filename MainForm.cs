@@ -20,7 +20,6 @@ namespace MiLauncherFW
         private const int CS_DROPSHADOW = 0x00020000;
 
         // Static Variables
-        private readonly char[] wordSeparator = { ' ' };
         internal static Color colorPattern1 = ColorTranslator.FromHtml("#28385E");
         internal static Color colorPattern2 = ColorTranslator.FromHtml("#516C8D");
         internal static Color colorPattern3 = ColorTranslator.FromHtml("#6A91C1");

@@ -7,20 +7,14 @@ namespace MiLauncherFW
 {
     internal class FileNameFilter
     {
-        private readonly char[] splitter = { ' ' };
+        private static readonly Migemo migemo = new Migemo("./Dict/migemo-dict");
 
-        //Dictionary<SpecialFilter, char> FilterSpecifier = new Dictionary<SpecialFilter, char>() {
-        //    [SpecialFilter.UnMatchName] = '!',
-        //    [SpecialFilter.UnMatchPath] = '-',
-        //    [SpecialFilter.MatchPath] = '/'
-        //};
+        private static readonly char[] splitter = { ' ' };
+        private static readonly string unmatchPath = "-";
+        private static readonly string unmatchName = "!";
+        private static readonly string matchPath = "/";
 
-        // CMIC
-        static readonly string unmatchPath = "-";
-        static readonly string unmatchName = "!";
-        static readonly string matchPath = "/";
-
-        string[] regexFilters;
+        private readonly string[] regexFilters;
 
         internal FileNameFilter(string rawInput)
         {
@@ -31,12 +25,10 @@ namespace MiLauncherFW
 
         static string MigemoTransform(string s)
         {
-            using (var migemo = new Migemo("./Dict/migemo-dict")) {
-                var specialFilters = unmatchPath + unmatchName + matchPath;
-                var prefix = specialFilters.Contains(s.Substring(0, 1)) ? s.Substring(0, 1) : "";
-                return s.Length - prefix.Length < Program.appSettings.MinMigemoLength ?
-                    s : prefix + migemo.GetRegex(s.Substring(prefix.Length));
-            };
+            var specialFilters = unmatchPath + unmatchName + matchPath;
+            var prefix = specialFilters.Contains(s.Substring(0, 1)) ? s.Substring(0, 1) : "";
+            return s.Length - prefix.Length < Program.appSettings.MinMigemoLength ?
+                s : prefix + migemo.GetRegex(s.Substring(prefix.Length));
         }
 
         internal bool MatchedBy(FileStats fileStats)
@@ -44,23 +36,24 @@ namespace MiLauncherFW
             foreach (var filter in regexFilters) {
                 var maybePrefix = filter.Substring(0, 1);
                 var maybeSuffix = filter.Substring(1);
+
                 if (maybePrefix == unmatchPath) {
-                    if (IsMigemoMatch(fileStats.FullPathName, maybeSuffix)) return false;
+                    if (Contains(fileStats.FullPathName, maybeSuffix)) return false;
                 }
                 else if (maybePrefix == unmatchName) {
-                    if (IsMigemoMatch(fileStats.FileName, maybeSuffix)) return false;
+                    if (Contains(fileStats.FileName, maybeSuffix)) return false;
                 }
                 else if (maybePrefix == matchPath) {
-                    if (!IsMigemoMatch(fileStats.FullPathName, maybeSuffix)) return false;
+                    if (!Contains(fileStats.FullPathName, maybeSuffix)) return false;
                 }
                 else {
-                    if (!IsMigemoMatch(fileStats.FileName, filter)) return false;
+                    if (!Contains(fileStats.FileName, filter)) return false;
                 }
             }
             return true;
         }
 
-        static bool IsMigemoMatch(string name, string pattern)
+        static bool Contains(string name, string pattern)
         {
             // Simple matching
             if (pattern.Length < Program.appSettings.MinMigemoLength) {
@@ -76,13 +69,6 @@ namespace MiLauncherFW
                 }
             }
         }
-
-        //enum SpecialFilter
-        //{
-        //    MatchPath,
-        //    UnMatchName,
-        //    UnMatchPath,
-        //}
     }
 }
 
