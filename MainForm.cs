@@ -299,8 +299,7 @@ namespace MiLauncherFW
 
                 Activate();
             }
-
-            // TODO: Cycle backwards ListView sort key
+            // TODO: Cycle backwards ListView sort key 
             // TODO: implement search history using M-p, M-n
         }
 
@@ -368,5 +367,9 @@ namespace MiLauncherFW
             return new Regex(@"(?>\w*\W*)(?!\w)");
         }
 
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
     }
 }
