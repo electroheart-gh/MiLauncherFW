@@ -155,7 +155,7 @@ namespace MiLauncherFW
                 CloseMainForm();
             }
             // Exec file with associated app
-            else if (e.KeyCode == Keys.Enter || (e.KeyCode == Keys.M && e.Control)) {
+            else if ((e.KeyCode == Keys.Enter && !e.Alt) || (e.KeyCode == Keys.M && e.Control)) {
                 var execFileStats = listForm.GetItem();
                 if (execFileStats is null) return;
 
@@ -176,6 +176,31 @@ namespace MiLauncherFW
                     searchedFileSet.Add(execFileStats);
                 }
                 else {
+                    fileStats.Priority += 1;
+                    fileStats.ExecTime = DateTime.Now;
+                }
+                CloseMainForm();
+            }
+            // Open directory of item (itself or parent)
+            else if (e.KeyCode == Keys.Enter && e.Alt) {
+                var execFileStats = listForm.GetItem();
+                if (execFileStats is null) return;
+
+                var targetDirectoryName = (Directory.Exists(execFileStats.FullPathName))
+                                        ? execFileStats.FullPathName
+                                        : Path.GetDirectoryName(execFileStats.FullPathName);
+
+                try {
+                    Process.Start("explorer.exe", targetDirectoryName);
+                }
+                catch (FileNotFoundException) {
+                    Debug.WriteLine("File Not Found");
+                    return;
+                }
+
+                // TODO: CMIC priority +1
+                var fileStats = searchedFileSet.FirstOrDefault(x => x.FullPathName == targetDirectoryName);
+                if (fileStats != null) {
                     fileStats.Priority += 1;
                     fileStats.ExecTime = DateTime.Now;
                 }
