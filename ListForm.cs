@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -19,7 +20,6 @@ namespace MiLauncherFW
         internal List<FileStats> ListViewItems { get; private set; }
         internal SortKeyOption SortKey { get; set; } = SortKeyOption.Priority;
         internal (string, string) ModeCaptions { get; set; }
-        //internal string ModeCaptionOpt { get; set; }
 
         private int _virtualListIndex;
         internal int VirtualListIndex
@@ -83,7 +83,44 @@ namespace MiLauncherFW
                 //e.Graphics.FillRectangle(Brushes.LightGray, e.Bounds);
                 e.Graphics.FillRectangle(new SolidBrush(MainForm.colorPattern4), e.Bounds);
             }
-            e.DrawText();
+            //e.DrawText();
+
+
+            // GDI + insert blank between directory name
+            string directoryName = Path.GetDirectoryName(e.Item.Text) + "\\";
+            string fileName = Path.GetFileName(e.Item.Text);
+
+            Rectangle bounds = e.Bounds;
+            TextRenderer.DrawText(e.Graphics, directoryName, e.Item.Font, bounds, e.Item.ForeColor, TextFormatFlags.NoPadding);
+            bounds.X += TextRenderer.MeasureText(e.Graphics, directoryName, e.Item.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+            TextRenderer.DrawText(e.Graphics, fileName, e.Item.Font, bounds, MainForm.colorPattern5, TextFormatFlags.NoPadding);
+
+
+            // GDI + change color of yen sign
+            //var directoryList = Path.GetDirectoryName(e.Item.Text).Split(Path.DirectorySeparatorChar);
+            //Rectangle bounds = e.Bounds;
+            //foreach (var directoryName in directoryList) {
+            //    TextRenderer.DrawText(e.Graphics, directoryName, e.Item.Font, bounds, e.Item.ForeColor, TextFormatFlags.NoPadding);
+            //    bounds.X += TextRenderer.MeasureText(e.Graphics, directoryName, e.Item.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+            //    TextRenderer.DrawText(e.Graphics, "\\", e.Item.Font, bounds, Color.Yellow, TextFormatFlags.NoPadding);
+            //    bounds.X += TextRenderer.MeasureText(e.Graphics, "\\", e.Item.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+            //}
+            //string fileName = Path.GetFileName(e.Item.Text);
+            //TextRenderer.DrawText(e.Graphics, fileName, e.Item.Font, bounds, MainForm.colorPattern5, TextFormatFlags.NoPadding);
+
+
+            // GDI+
+            //var defaultBrush = new SolidBrush(e.Item.ForeColor);
+            //var coloredBrush = new SolidBrush(MainForm.colorPattern5);
+            // 描画の開始位置
+            //float x = e.Bounds.X;
+            //var charSize = e.Graphics.MeasureString(c.ToString(), font);
+            //e.Graphics.DrawString(directoryName, e.Item.Font, defaultBrush, x, e.Bounds.Y);
+            //SizeF proposedSize = new Size(int.MaxValue, int.MaxValue);
+            //StringFormat format = new StringFormat();
+            //format.FormatFlags = StringFormatFlags.MeasureTrailingSpaces;
+            //var stringWidth = e.Graphics.MeasureString(directoryName, e.Item.Font, PointF.Empty, format).Width;
+            //e.Graphics.DrawString(fileName, e.Item.Font, coloredBrush, x + stringWidth, e.Bounds.Y);
         }
 
         internal void SetVirtualList(List<FileStats> sourceItems = null)
@@ -92,22 +129,6 @@ namespace MiLauncherFW
             ListViewItems = sourceItems.OrderByDescending(x => x.SortValue(SortKey)).ToList();
             listView.VirtualListSize = ListViewItems.Count;
         }
-
-        //internal FileStats ExecItem()
-        //{
-        //    if (Visible & listView.VirtualListSize > 0) {
-        //        try {
-        //            FileStats selectedFileStats = ListViewItems[VirtualListIndex];
-        //            Process.Start("explorer.exe", selectedFileStats.FullPathName);
-        //            Visible = false;
-        //            return selectedFileStats;
-        //        }
-        //        catch (FileNotFoundException) {
-        //            Debug.WriteLine("File Not Found");
-        //        }
-        //    }
-        //    return null;
-        //}
 
         internal FileStats GetItem()
         {
@@ -120,23 +141,13 @@ namespace MiLauncherFW
 
         private void listView_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
         {
-            e.Item = new ListViewItem(ListViewItems[e.ItemIndex].ShortPathName ?? ListViewItems[e.ItemIndex].FullPathName);
+            // Insert blank between directory name
+            var displayString = (ListViewItems[e.ItemIndex].ShortPathName ?? ListViewItems[e.ItemIndex].FullPathName).Replace("\\", "\\ ");
+            e.Item = new ListViewItem(displayString);
+
+            //// Nothing to do to change color of yen sign
+            //e.Item = new ListViewItem(ListViewItems[e.ItemIndex].ShortPathName ?? ListViewItems[e.ItemIndex].FullPathName);
         }
-
-        //internal static string GetShortenedString(string str, int offset = 0)
-        //{
-        //    // TODO: CMIC
-        //    var font = new System.Drawing.Font("Meiryo UI", 9.75F, System.Drawing.FontStyle.Regular);
-        //    // TODO: CMIC
-        //    var realWidth = 1000 - offset;
-
-        //    if (TextRenderer.MeasureText(str, font).Width < realWidth) return null;
-
-        //    while (TextRenderer.MeasureText(str + "...", font).Width > realWidth) {
-        //        str = str[1..];
-        //    }
-        //    return "..." + str;
-        //}
 
         internal FileStats CurrentItem()
         {
@@ -203,6 +214,7 @@ namespace MiLauncherFW
             // TODO: CMICst
             Height = listView.GetItemRect(0).Height * Math.Min(Program.appSettings.MaxListLine, listView.VirtualListSize + 1) + 30;
         }
+
         internal void AdjustWidth()
         {
             listView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);

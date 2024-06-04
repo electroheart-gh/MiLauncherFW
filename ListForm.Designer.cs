@@ -39,6 +39,7 @@
             this.listView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.Header});
             this.listView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView.Font = new System.Drawing.Font("Meiryo UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.listView.ForeColor = System.Drawing.SystemColors.WindowText;
             this.listView.FullRowSelect = true;
             this.listView.HideSelection = false;

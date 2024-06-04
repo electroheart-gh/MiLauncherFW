@@ -26,6 +26,7 @@ namespace MiLauncherFW
         internal static Color colorPattern2 = ColorTranslator.FromHtml("#516C8D");
         internal static Color colorPattern3 = ColorTranslator.FromHtml("#6A91C1");
         internal static Color colorPattern4 = ColorTranslator.FromHtml("#CCCCCC");
+        internal static Color colorPattern5 = ColorTranslator.FromHtml("#FF9800");
 
         // Variables
         private Point dragStart;
