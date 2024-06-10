@@ -218,20 +218,16 @@ namespace MiLauncherFW
 
         private void SetColumnHeader(int index)
         {
-            if (SortKey == SortKeyOption.FullPathName) {
-                Header.Text = "<Path>";
-            }
-            else {
-                Header.Text = string.Format("<{0}> {1}", SortKey.ToString(), ListViewItems[index].SortValue(SortKey));
-            }
+            Header.Text = (SortKey == SortKeyOption.FullPathName)
+                ? "<Path>"
+                : string.Format("<{0}> {1}", SortKey.ToString(), ListViewItems[index].SortValue(SortKey));
 
-            // If any, display additional information defined as mode caption in column header
-            // ModeCaption
-            if (ModeCaptions != (null, null)) {
-                Header.Text += "  <" + ModeCaptions.Item1 + "> ";
-                var baseWidth = TextRenderer.MeasureText(Header.Text, listView.Font).Width;
-                Header.Text += FileStats.GetShortenedString(ModeCaptions.Item2, baseWidth) ?? ModeCaptions.Item2;
-            }
+            // If any, displays additional information defined by ModeCaptions in column header
+            if (ModeCaptions == (null, null)) return;
+
+            Header.Text += "  <" + ModeCaptions.Item1 + "> ";
+            var baseWidth = TextRenderer.MeasureText(Header.Text, listView.Font).Width;
+            Header.Text += FileStats.GetShortenedString(ModeCaptions.Item2, baseWidth) ?? ModeCaptions.Item2;
         }
 
         internal void CycleSortKey()
@@ -258,6 +254,6 @@ namespace MiLauncherFW
             int z = x % y;
             return (z >= 0) ? z : z + y;
         }
-        
+
     }
 }
