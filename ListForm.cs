@@ -4,6 +4,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace MiLauncherFW
@@ -63,8 +64,6 @@ namespace MiLauncherFW
                 //e.Graphics.FillRectangle(Brushes.LightGray, e.Bounds);
                 e.Graphics.FillRectangle(new SolidBrush(MainForm.colorPattern4), e.Bounds);
             }
-            //e.DrawText();
-
 
             // by GDI, insert blank between directory name
             string directoryName = Path.GetDirectoryName(e.Item.Text) + "\\";
@@ -74,31 +73,6 @@ namespace MiLauncherFW
             TextRenderer.DrawText(e.Graphics, directoryName, e.Item.Font, bounds, e.Item.ForeColor, TextFormatFlags.NoPadding);
             bounds.X += TextRenderer.MeasureText(e.Graphics, directoryName, e.Item.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
             TextRenderer.DrawText(e.Graphics, fileName, e.Item.Font, bounds, MainForm.colorPattern5, TextFormatFlags.NoPadding);
-
-            // by GDI, change color of yen sign
-            //var directoryList = Path.GetDirectoryName(e.Item.Text).Split(Path.DirectorySeparatorChar);
-            //Rectangle bounds = e.Bounds;
-            //foreach (var directoryName in directoryList) {
-            //    TextRenderer.DrawText(e.Graphics, directoryName, e.Item.Font, bounds, e.Item.ForeColor, TextFormatFlags.NoPadding);
-            //    bounds.X += TextRenderer.MeasureText(e.Graphics, directoryName, e.Item.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
-            //    TextRenderer.DrawText(e.Graphics, "\\", e.Item.Font, bounds, Color.Yellow, TextFormatFlags.NoPadding);
-            //    bounds.X += TextRenderer.MeasureText(e.Graphics, "\\", e.Item.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
-            //}
-            //string fileName = Path.GetFileName(e.Item.Text);
-            //TextRenderer.DrawText(e.Graphics, fileName, e.Item.Font, bounds, MainForm.colorPattern5, TextFormatFlags.NoPadding);
-
-            // GDI+
-            //var defaultBrush = new SolidBrush(e.Item.ForeColor);
-            //var coloredBrush = new SolidBrush(MainForm.colorPattern5);
-            // 描画の開始位置
-            //float x = e.Bounds.X;
-            //var charSize = e.Graphics.MeasureString(c.ToString(), font);
-            //e.Graphics.DrawString(directoryName, e.Item.Font, defaultBrush, x, e.Bounds.Y);
-            //SizeF proposedSize = new Size(int.MaxValue, int.MaxValue);
-            //StringFormat format = new StringFormat();
-            //format.FormatFlags = StringFormatFlags.MeasureTrailingSpaces;
-            //var stringWidth = e.Graphics.MeasureString(directoryName, e.Item.Font, PointF.Empty, format).Width;
-            //e.Graphics.DrawString(fileName, e.Item.Font, coloredBrush, x + stringWidth, e.Bounds.Y);
         }
 
         private void listView_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
@@ -106,20 +80,34 @@ namespace MiLauncherFW
             // Insert blank between directory name
             var displayString = (ListViewItems[e.ItemIndex].ShortPathName ?? ListViewItems[e.ItemIndex].FullPathName).Replace("\\", "\\ ");
             e.Item = new ListViewItem(displayString);
-
-            //// Nothing to do to change color of yen sign
-            //e.Item = new ListViewItem(ListViewItems[e.ItemIndex].ShortPathName ?? ListViewItems[e.ItemIndex].FullPathName);
         }
 
         private void listView_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
             // TODO: CMIC
             e.Graphics.FillRectangle(new SolidBrush(MainForm.colorPattern2), e.Bounds);
-            TextRenderer.DrawText(e.Graphics, e.Header.Text, e.Font, e.Bounds, Color.White, TextFormatFlags.Left);
-            //TextRenderer.DrawText(e.Graphics, e.Header.Text, e.Font, e.Bounds, Color.LightGray, TextFormatFlags.Left);
-            //using (Pen pen = new Pen(Color.Gray)) {
-            //    e.Graphics.DrawLine(pen, e.Bounds.Left, e.Bounds.Bottom - 1, e.Bounds.Right, e.Bounds.Bottom - 1);
-            //}
+
+            Rectangle bounds = e.Bounds;
+
+            // Captures SortKey name and value
+            var sortKeyMatch = Regex.Match(e.Header.Text, @"^(<[^>]*>)([^<]*)");
+            // Display SortKey name
+            TextRenderer.DrawText(e.Graphics, sortKeyMatch.Groups[1].Value, e.Font, bounds, Color.White, TextFormatFlags.NoPadding);
+            bounds.X += TextRenderer.MeasureText(e.Graphics, sortKeyMatch.Groups[1].Value, e.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+            // Display SortKey value with specified color
+            TextRenderer.DrawText(e.Graphics, sortKeyMatch.Groups[2].Value, e.Font, bounds, MainForm.colorPattern5, TextFormatFlags.NoPadding);
+            bounds.X += TextRenderer.MeasureText(e.Graphics, sortKeyMatch.Groups[2].Value, e.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+
+            // Captures CrawlMode name and CrawlPath
+            var crawlModeMatch = Regex.Match(e.Header.Text, @"(<CrawlMode> .*\\)(.*)");
+            if (crawlModeMatch.Success) {
+                // Display SortKey name
+                TextRenderer.DrawText(e.Graphics, crawlModeMatch.Groups[1].Value, e.Font, bounds, Color.White, TextFormatFlags.NoPadding);
+                bounds.X += TextRenderer.MeasureText(e.Graphics, crawlModeMatch.Groups[1].Value, e.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+                // Display SortKey value with specified color
+                TextRenderer.DrawText(e.Graphics, crawlModeMatch.Groups[2].Value, e.Font, bounds, MainForm.colorPattern5, TextFormatFlags.NoPadding);
+                bounds.X += TextRenderer.MeasureText(e.Graphics, crawlModeMatch.Groups[2].Value, e.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+            }
         }
 
         // Key down event in listView makes focus on MainForm
@@ -146,7 +134,7 @@ namespace MiLauncherFW
             }
             return null;
         }
-        
+
         // TODO: Consider to use GetItem() instead of CurrentItem()
         internal FileStats CurrentItem()
         {
@@ -158,7 +146,7 @@ namespace MiLauncherFW
             if (listView.VirtualListSize == 0) return;
 
             VirtualListIndex++;
-            DisplayColumnHeader(VirtualListIndex);
+            SetColumnHeader(VirtualListIndex);
 
             var originalScrollPosition = listView.GetItemRect(0).Y;
             listView.EnsureVisible(VirtualListIndex);
@@ -174,7 +162,7 @@ namespace MiLauncherFW
             if (listView.VirtualListSize == 0) return;
 
             VirtualListIndex--;
-            DisplayColumnHeader(VirtualListIndex);
+            SetColumnHeader(VirtualListIndex);
 
             var originalScrollPosition = listView.GetItemRect(0).Y;
             listView.EnsureVisible(VirtualListIndex);
@@ -195,7 +183,7 @@ namespace MiLauncherFW
                 // Changing height in AdjustHeight() seems to focus on list view
                 AdjustHeight();
                 VirtualListIndex = index;
-                DisplayColumnHeader(VirtualListIndex);
+                SetColumnHeader(VirtualListIndex);
                 listView.EnsureVisible(VirtualListIndex);
                 AdjustWidth();
             }
@@ -221,23 +209,26 @@ namespace MiLauncherFW
             int columnContentWidth = listView.GetItemRect(0).Width;
             var maxWidth = Math.Max(columnContentWidth, headerWidth);
 
-            listView.Columns[0].Width = maxWidth;
+            // TODO: CMICst, adding 10 in order to have enough space for the actual width,
+            // which might be caused by MeasureText is not taking e.Graphics as argument
+            listView.Columns[0].Width = maxWidth + 10;
             // TODO: CMICst
             Width = maxWidth + 40;
         }
 
-        private void DisplayColumnHeader(int index)
+        private void SetColumnHeader(int index)
         {
             if (SortKey == SortKeyOption.FullPathName) {
-                Header.Text = "Path";
+                Header.Text = "<Path>";
             }
             else {
-                Header.Text = string.Format("{0}: {1}", SortKey.ToString(), ListViewItems[index].SortValue(SortKey));
+                Header.Text = string.Format("<{0}> {1}", SortKey.ToString(), ListViewItems[index].SortValue(SortKey));
             }
 
-            // If any, display additional information in column header
+            // If any, display additional information defined as mode caption in column header
+            // ModeCaption
             if (ModeCaptions != (null, null)) {
-                Header.Text += "  " + ModeCaptions.Item1;
+                Header.Text += "  <" + ModeCaptions.Item1 + "> ";
                 var baseWidth = TextRenderer.MeasureText(Header.Text, listView.Font).Width;
                 Header.Text += FileStats.GetShortenedString(ModeCaptions.Item2, baseWidth) ?? ModeCaptions.Item2;
             }
@@ -267,5 +258,6 @@ namespace MiLauncherFW
             int z = x % y;
             return (z >= 0) ? z : z + y;
         }
+        
     }
 }

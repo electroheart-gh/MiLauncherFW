@@ -27,7 +27,8 @@ namespace MiLauncherFW
                 CrawlFileSet = CrawlFileSet?.ImportPriorityAndExecTime(sourceFileSet);
 
             Status = CrawlFileSet is null ? ModeStatus.Defective : ModeStatus.Active;
-            Captions = path is null ? (null, null) : ("Crawling in: ", path);
+            // CMICst
+            Captions = path is null ? (null, null) : ("CrawlMode", path);
         }
 
         //
