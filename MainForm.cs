@@ -294,6 +294,8 @@ namespace MiLauncherFW
             else if (e.KeyCode == Keys.Oemcomma && e.Control) {
                 if (!listForm.Visible) return;
 
+                var orgCrawlPath = currentMode.IsCrawlMode() ? currentMode.CrawlMode.CrawlPath : null;
+
                 // Try Crawl and check its return
                 if (!currentMode.CrawlUp(listForm.CurrentItem().FullPathName)) return;
                 currentMode.CrawlMode.SyncFileSetMutually(searchedFileSet);
@@ -305,9 +307,13 @@ namespace MiLauncherFW
 
                 cmdBox.Text = string.Empty;
                 listForm.ModeCaptions = currentMode.GetCrawlCaptions();
-                listForm.SetVirtualList(currentMode.GetCrawlFileSet().ToList());
+                var crawlFileSetList = currentMode.GetCrawlFileSet().ToList();
+                listForm.SetVirtualList(crawlFileSetList);
 
-                listForm.ShowAt();
+                var orgPathIndex = crawlFileSetList.FindIndex(x => x.FullPathName == orgCrawlPath);
+                listForm.ShowAt(null, null, orgPathIndex);
+
+
                 Activate();
             }
             // Crawl folder downwards

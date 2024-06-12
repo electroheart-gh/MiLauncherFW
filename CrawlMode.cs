@@ -25,24 +25,11 @@ namespace MiLauncherFW
         private CrawlMode(string path)
         {
             CrawlPath = path;
-            CrawlFileSet = FileSet.SearchFilesInPath(path);
-            Status = ModeStatus.Defective;
-            Status = (CrawlFileSet is null) ? ModeStatus.Defective : ModeStatus.Immature;
             // CMICst
             Captions = (path is null) ? (null, null) : ("CrawlMode", path);
+            CrawlFileSet = FileSet.SearchFilesInPath(path);
+            Status = (CrawlFileSet is null) ? ModeStatus.Defective : ModeStatus.Immature;
         }
-
-        //private CrawlMode(string path, HashSet<FileStats> sourceFileSet)
-        //{
-        //    CrawlPath = path;
-        //    CrawlFileSet = FileSet.SearchFilesInPath(path);
-        //    if (sourceFileSet != null)
-        //        CrawlFileSet = CrawlFileSet?.ImportPriorityAndExecTime(sourceFileSet);
-
-        //    Status = CrawlFileSet is null ? ModeStatus.Defective : ModeStatus.Active;
-        //    // CMICst
-        //    Captions = path is null ? (null, null) : ("CrawlMode", path);
-        //}
 
         //
         // Methods
@@ -53,13 +40,6 @@ namespace MiLauncherFW
             var newCrawlMode = new CrawlMode(path);
             return (newCrawlMode.Status != ModeStatus.Defective) ? newCrawlMode : null;
         }
-
-        //internal static CrawlMode Crawl(string path, HashSet<FileStats> sourceFileSet )
-        //{
-        //    if (path is null) return null;
-        //    var newCrawlMode = new CrawlMode(path, sourceFileSet);
-        //    return newCrawlMode.Status == ModeStatus.Active ? newCrawlMode : null;
-        //}
 
         internal void SyncFileSetMutually(HashSet<FileStats> sourceFileSet)
         {
