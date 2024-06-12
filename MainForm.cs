@@ -358,7 +358,7 @@ namespace MiLauncherFW
             if (ActiveForm is null) {
                 // TODO: consider when to save fileList
                 // SettingManager.SaveSettings<FileList>(fileList, fileListDataPath);
-                //CloseMainForm();
+                CloseMainForm();
             }
         }
 
