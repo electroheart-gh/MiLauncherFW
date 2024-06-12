@@ -157,7 +157,7 @@ namespace MiLauncherFW
             }
             // Exec file with associated app
             else if ((e.KeyCode == Keys.Enter && !e.Alt) || (e.KeyCode == Keys.M && e.Control)) {
-                var execFileStats = listForm.GetItem();
+                var execFileStats = listForm.CurrentItem();
                 if (execFileStats is null) return;
 
                 try {
@@ -184,7 +184,7 @@ namespace MiLauncherFW
             }
             // Open directory of item (itself or parent)
             else if (e.KeyCode == Keys.Enter && e.Alt) {
-                var execFileStats = listForm.GetItem();
+                var execFileStats = listForm.CurrentItem();
                 if (execFileStats is null) return;
 
                 var targetDirectoryName = (Directory.Exists(execFileStats.FullPathName))
@@ -209,7 +209,7 @@ namespace MiLauncherFW
             }
             // Copy file path to clipboard
             else if (e.KeyCode == Keys.C && e.Control && !e.Shift) {
-                Clipboard.SetText(listForm.GetItem().FullPathName);
+                Clipboard.SetText(listForm.CurrentItem().FullPathName);
             }
             //// Copy file path in UNC to clipboard
             //if (e.KeyCode == Keys.C && e.Control && e.Shift) {

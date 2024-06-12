@@ -126,19 +126,9 @@ namespace MiLauncherFW
             listView.VirtualListSize = ListViewItems.Count;
         }
 
-        internal FileStats GetItem()
-        {
-            if (Visible & listView.VirtualListSize > 0) {
-                FileStats selectedFileStats = ListViewItems[VirtualListIndex];
-                return selectedFileStats;
-            }
-            return null;
-        }
-
-        // TODO: Consider to use GetItem() instead of CurrentItem()
         internal FileStats CurrentItem()
         {
-            return listView.VirtualListSize == 0 ? null : ListViewItems[VirtualListIndex];
+            return (Visible & listView.VirtualListSize > 0) ? ListViewItems[VirtualListIndex] : null;
         }
 
         internal void SelectNextItem()
