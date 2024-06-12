@@ -5,16 +5,17 @@ using System.Linq;
 namespace MiLauncherFW
 {
     /// <summary>
-    /// Provides functionality to integrates control of <see cref="CrawlMode"/>,
-    /// <see cref="RestoreMode"/> and normal mode 
+    /// Provides functionality to integrates control of <see cref="MiLauncherFW.CrawlMode"/>,
+    /// <see cref="MiLauncherFW.RestoreMode"/> and normal mode 
     /// </summary>
     internal class ModeController
     {
         // Mode and Status
-        // CrawlMode: Null, Defective, Active
+        // CrawlMode: Null, Defective, Immature, Active
         // RestoreMode: Null, Defective, Prepared, Active
-        private CrawlMode crawlMode;
-        private RestoreMode restoreMode;
+        internal RestoreMode RestoreMode { get; set; }
+
+        internal CrawlMode CrawlMode { get; set; }
 
         internal ModeController()
         {
@@ -23,45 +24,47 @@ namespace MiLauncherFW
         //
         // Methods for Crawl mode
         //
-        internal bool CrawlUp(string itemPath, HashSet<FileStats> sourceFileSet)
+        internal bool CrawlUp(string itemPath)
         {
             // Returns false when no change needed
             // If Crawl mode active, use CrawlPath instead of itemPath
             if (IsCrawlMode()) {
-                var upperPath = Path.GetDirectoryName(crawlMode.CrawlPath);
-                CrawlMode crawlResult = CrawlMode.Crawl(upperPath, sourceFileSet);
-                crawlMode = (crawlResult?.Status == ModeStatus.Active) ? crawlResult : crawlMode;
-                return crawlResult != null;
+                var upperPath = Path.GetDirectoryName(CrawlMode.CrawlPath);
+                CrawlMode crawlResult = CrawlMode.Crawl(upperPath);
+                if ((crawlResult is null) || (crawlResult.Status == ModeStatus.Defective)) return false;
+                CrawlMode = crawlResult;
+                return true;
             }
             else {
-                crawlMode = CrawlMode.Crawl(Path.GetDirectoryName(itemPath), sourceFileSet);
-                return crawlMode != null;
+                CrawlMode = CrawlMode.Crawl(Path.GetDirectoryName(itemPath));
+                return CrawlMode != null;
             }
         }
-        internal bool CrawlDown(string itemPath, HashSet<FileStats> sourceFileSet)
+        internal bool CrawlDown(string itemPath)
         {
-            CrawlMode crawlResult = CrawlMode.Crawl(itemPath, sourceFileSet);
-            crawlMode = (crawlResult?.Status == ModeStatus.Active) ? crawlResult : crawlMode;
-            return crawlMode != null;
+            CrawlMode crawlResult = CrawlMode.Crawl(itemPath);
+            if ((crawlResult is null) || (crawlResult.Status == ModeStatus.Defective)) return false;
+            CrawlMode = crawlResult;
+            return true;
         }
         internal bool IsCrawlMode()
         {
-            return crawlMode?.Status == ModeStatus.Active;
+            return CrawlMode?.Status == ModeStatus.Active;
         }
         internal (string, string) GetCrawlCaptions()
         {
-            return crawlMode.Captions;
+            return CrawlMode.Captions;
         }
 
         internal HashSet<FileStats> GetCrawlFileSet()
         {
-            return crawlMode?.CrawlFileSet;
+            return CrawlMode?.CrawlFileSet;
         }
 
         internal void ExitCrawl()
         {
             // TODO: consider to dispose instance
-            crawlMode = null;
+            CrawlMode = null;
         }
 
         //
@@ -69,41 +72,41 @@ namespace MiLauncherFW
         //
         internal bool IsRestoreMode()
         {
-            return restoreMode?.Status == ModeStatus.Active;
+            return RestoreMode?.Status == ModeStatus.Active;
         }
         internal bool IsRestorePrepared()
         {
-            return restoreMode?.Status == ModeStatus.Prepared || restoreMode?.Status == ModeStatus.Active;
+            return RestoreMode?.Status == ModeStatus.Prepared || RestoreMode?.Status == ModeStatus.Active;
         }
         internal void PrepareRestore(string text, int index, SortKeyOption sortKey, List<FileStats> items)
         {
-            restoreMode = new RestoreMode(text, index, sortKey, items);
+            RestoreMode = new RestoreMode(text, index, sortKey, items);
         }
         internal void ActivateRestore()
         {
-            restoreMode = restoreMode ?? new RestoreMode();
-            restoreMode.Status = ModeStatus.Active;
+            RestoreMode = RestoreMode ?? new RestoreMode();
+            RestoreMode.Status = ModeStatus.Active;
         }
         internal SortKeyOption RestoreSortKey()
         {
-            return restoreMode.SavedSortKey;
+            return RestoreMode.SavedSortKey;
         }
         internal List<FileStats> RestoreItems()
         {
-            return restoreMode.SavedItems;
+            return RestoreMode.SavedItems;
         }
         internal string RestoreCmdBoxText()
         {
-            return restoreMode.SavedText;
+            return RestoreMode.SavedText;
         }
         internal int RestoreIndex()
         {
-            return restoreMode.SavedIndex;
+            return RestoreMode.SavedIndex;
         }
         internal void ExitRestore()
         {
             // TODO: consider to dispose instance
-            restoreMode = null;
+            RestoreMode = null;
         }
 
         //
@@ -114,19 +117,20 @@ namespace MiLauncherFW
             return !IsCrawlMode() && !IsRestoreMode();
         }
 
-        // Change both searchedFileSet and CrawlFileSet
-        internal void ApplyCrawlFileSet(HashSet<FileStats> sourceFileSet)
-        {
-            crawlMode.CrawlFileSet = crawlMode.CrawlFileSet.ImportPriorityAndExecTime(sourceFileSet);
-            if (Program.appSettings.TargetFolders.Any(x => crawlMode.CrawlPath.StartsWith(x))) {
-                sourceFileSet.RemoveWhere(x => Path.GetDirectoryName(x.FullPathName) == crawlMode.CrawlPath);
-                sourceFileSet.UnionWith(crawlMode.CrawlFileSet);
-            }
-        }
+        //// Change both searchedFileSet and CrawlFileSet
+        //internal void SyncCrawlFileSetMutually(HashSet<FileStats> sourceFileSet)
+        //{
+        //    CrawlMode.CrawlFileSet = CrawlMode.CrawlFileSet.ImportPriorityAndExecTime(sourceFileSet);
+        //    if (Program.appSettings.TargetFolders.Any(x => CrawlMode.CrawlPath.StartsWith(x))) {
+        //        sourceFileSet.RemoveWhere(x => Path.GetDirectoryName(x.FullPathName) == CrawlMode.CrawlPath);
+        //        sourceFileSet.UnionWith(CrawlMode.CrawlFileSet);
+        //    }
+        //}
     }
     internal enum ModeStatus
     {
         Defective,
+        Immature,
         Prepared,
         Active,
     }

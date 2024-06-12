@@ -295,13 +295,14 @@ namespace MiLauncherFW
                 if (!listForm.Visible) return;
 
                 // Try Crawl and check its return
-                if (!currentMode.CrawlUp(listForm.CurrentItem().FullPathName, searchedFileSet)) return;
+                if (!currentMode.CrawlUp(listForm.CurrentItem().FullPathName)) return;
+                currentMode.CrawlMode.SyncFileSetMutually(searchedFileSet);
 
                 if (!currentMode.IsRestorePrepared()) {
                     currentMode.PrepareRestore(cmdBox.Text, listForm.VirtualListIndex,
                         listForm.SortKey, listForm.ListViewItems);
                 }
-                currentMode.ApplyCrawlFileSet(searchedFileSet);
+
                 cmdBox.Text = string.Empty;
                 listForm.ModeCaptions = currentMode.GetCrawlCaptions();
                 listForm.SetVirtualList(currentMode.GetCrawlFileSet().ToList());
@@ -314,13 +315,14 @@ namespace MiLauncherFW
                 if (!listForm.Visible) return;
 
                 // Try Crawl and check its return
-                if (!currentMode.CrawlDown(listForm.CurrentItem().FullPathName, searchedFileSet)) return;
+                if (!currentMode.CrawlDown(listForm.CurrentItem().FullPathName)) return;
+                currentMode.CrawlMode.SyncFileSetMutually(searchedFileSet);
 
                 if (!currentMode.IsRestorePrepared()) {
                     currentMode.PrepareRestore(cmdBox.Text, listForm.VirtualListIndex,
                         listForm.SortKey, listForm.ListViewItems);
                 }
-                currentMode.ApplyCrawlFileSet(searchedFileSet);
+
                 cmdBox.Text = string.Empty;
                 listForm.ModeCaptions = currentMode.GetCrawlCaptions();
                 listForm.SetVirtualList(currentMode.GetCrawlFileSet().ToList());
@@ -356,7 +358,7 @@ namespace MiLauncherFW
             if (ActiveForm is null) {
                 // TODO: consider when to save fileList
                 // SettingManager.SaveSettings<FileList>(fileList, fileListDataPath);
-                CloseMainForm();
+                //CloseMainForm();
             }
         }
 
