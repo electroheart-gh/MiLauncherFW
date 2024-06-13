@@ -52,6 +52,9 @@ namespace MiLauncherFW
         public ListForm()
         {
             InitializeComponent();
+            var fontName = Program.appSettings.ListViewFontName;
+            var fontSize = Program.appSettings.ListViewFontSize;
+            listView.Font = new Font(fontName, fontSize);
         }
 
         //
@@ -61,7 +64,6 @@ namespace MiLauncherFW
         {
             if (VirtualListIndex == e.Item.Index) {
                 // TODO: CMIC
-                //e.Graphics.FillRectangle(Brushes.LightGray, e.Bounds);
                 e.Graphics.FillRectangle(new SolidBrush(MainForm.colorPattern4), e.Bounds);
             }
 
@@ -236,6 +238,12 @@ namespace MiLauncherFW
                     SortKey = SortKeyOption.Priority;
                     break;
             }
+            SetVirtualList();
+        }
+
+        internal void ChangeSortKey(SortKeyOption sortKey)
+        {
+            SortKey = sortKey;
             SetVirtualList();
         }
 

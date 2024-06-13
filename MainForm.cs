@@ -44,6 +44,10 @@ namespace MiLauncherFW
         {
             InitializeComponent();
             pictureBox1.BackColor = colorPattern1;
+            var fontName = Program.appSettings.CmdBoxFontName;
+            var fontSize = Program.appSettings.CmdBoxFontSize;
+            cmdBox.Font = new Font(fontName, fontSize);
+
         }
 
         // Borderless winform with shadow
@@ -288,6 +292,34 @@ namespace MiLauncherFW
                 if (!listForm.Visible) return;
 
                 listForm.CycleSortKey();
+                listForm.ShowAt();
+            }
+            // Sort by priority
+            else if (e.KeyCode == Keys.D7 && e.Control) {
+                if (!listForm.Visible) return;
+
+                listForm.ChangeSortKey(SortKeyOption.Priority);
+                listForm.ShowAt();
+            }
+            // Sort by exec time
+            else if (e.KeyCode == Keys.D8 && e.Control) {
+                if (!listForm.Visible) return;
+
+                listForm.ChangeSortKey(SortKeyOption.ExecTime);
+                listForm.ShowAt();
+            }
+            // Sort by path
+            else if (e.KeyCode == Keys.D9 && e.Control) {
+                if (!listForm.Visible) return;
+
+                listForm.ChangeSortKey(SortKeyOption.FullPathName);
+                listForm.ShowAt();
+            }
+            // Sort by update time
+            else if (e.KeyCode == Keys.D0 && e.Control) {
+                if (!listForm.Visible) return;
+
+                listForm.ChangeSortKey(SortKeyOption.UpdateTime);
                 listForm.ShowAt();
             }
             // Crawl folder upwards

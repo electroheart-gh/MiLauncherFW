@@ -19,11 +19,11 @@ namespace MiLauncherFW
         {
             // Read configuration
             appSettings = SettingManager.LoadSettings<AppSettings>(configFilePath);
-
             if (appSettings is null) {
                 appSettings = new AppSettings();
-                SettingManager.SaveSettings(appSettings, configFilePath);
             }
+            // Save configuration
+            SettingManager.SaveSettings(appSettings, configFilePath);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
