@@ -30,7 +30,7 @@ namespace MiLauncherFW
             List<string> searchPaths = Program.appSettings.TargetFolders;
             return new HashSet<FileStats>(
                 searchPaths.SelectMany(
-                    x => DirectorySearch.EnumerateAllFileSystemEntries(x).Select(fn => new FileStats(fn))));
+                    x => EnumerateAllFileSystemEntries(x).Select(fn => new FileStats(fn))));
         }
 
         internal static HashSet<FileStats> SearchFilesInPath(string searchPath)
@@ -62,5 +62,29 @@ namespace MiLauncherFW
                                                               y.FirstOrDefault()?.Priority,
                                                               y.FirstOrDefault()?.ExecTime)));
         }
+
+        public static IEnumerable<string> EnumerateAllFileSystemEntries(string path)
+        {
+            return EnumerateAllFileSystemEntries(path, "*");
+        }
+        private static IEnumerable<string> EnumerateAllFileSystemEntries(string path, string searchPattern)
+        {
+            var files = Enumerable.Empty<string>();
+            try {
+                //files = System.IO.Directory.EnumerateFiles(path, searchPattern);
+                files = Directory.EnumerateFileSystemEntries(path, searchPattern);
+            }
+            catch (UnauthorizedAccessException) {
+            }
+            try {
+                files = Directory.EnumerateDirectories(path)
+                    .Aggregate(files, (a, v) => a.Union(EnumerateAllFileSystemEntries(v, searchPattern)));
+            }
+            catch (UnauthorizedAccessException) {
+            }
+            return files;
+        }
+
+
     }
 }
