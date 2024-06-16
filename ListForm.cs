@@ -42,11 +42,6 @@ namespace MiLauncherFW
         public Action<KeyEventArgs> ListViewKeyDown;
 
         //
-        // Constants
-        //
-        //const int maxLineListView = 30;
-
-        //
         // Constructor
         //
         public ListForm()

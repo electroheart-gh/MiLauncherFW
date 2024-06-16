@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Text.Json.Serialization;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace MiLauncherFW
 {
@@ -64,14 +66,15 @@ namespace MiLauncherFW
 
         internal static string GetShortenedString(string str, int offset = 0)
         {
-            // TODO: CMIC High Priority
-            var font = new System.Drawing.Font("Meiryo UI", 9.75F, System.Drawing.FontStyle.Regular);
-            // TODO: CMIC High Priority
-            var realWidth = Program.appSettings.MaxListWidth - offset;
+            var fontName = Program.appSettings.ListViewFontName;
+            var fontSize = Program.appSettings.ListViewFontSize;
+            var font = new Font(fontName, fontSize);
 
-            if (TextRenderer.MeasureText(str, font).Width < realWidth) return null;
+            var realMaxWidth = Program.appSettings.MaxListWidth - offset;
 
-            while (TextRenderer.MeasureText(str + "...", font).Width > realWidth) {
+            if (TextRenderer.MeasureText(str, font).Width < realMaxWidth) return null;
+
+            while (TextRenderer.MeasureText(str + "...", font).Width > realMaxWidth) {
                 str = str.Substring(1);
             }
             return "..." + str;
