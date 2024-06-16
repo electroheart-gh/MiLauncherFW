@@ -25,12 +25,19 @@ namespace MiLauncherFW
             }
         }
 
-        internal static HashSet<FileStats> SearchAllFiles()
+        internal static HashSet<FileStats> ImportPriorityAndExecTime
+                (this IEnumerable<FileStats> targetFiles, IEnumerable<FileStats> sourceFiles)
         {
-            List<string> searchPaths = Program.appSettings.TargetFolders;
             return new HashSet<FileStats>(
-                searchPaths.SelectMany(
-                    x => EnumerateAllFileSystemEntries(x).Select(fn => new FileStats(fn))));
+                targetFiles.GroupJoin(sourceFiles,
+                                      x => x.FullPathName,
+                                      y => y.FullPathName,
+                                      (x, y) => new FileStats(x.FullPathName,
+                                                              x.FileName,
+                                                              x.ShortPathName,
+                                                              x.UpdateTime,
+                                                              y.FirstOrDefault()?.Priority,
+                                                              y.FirstOrDefault()?.ExecTime)));
         }
 
         internal static HashSet<FileStats> SearchFilesInPath(string searchPath)
@@ -48,19 +55,12 @@ namespace MiLauncherFW
             }
         }
 
-        internal static HashSet<FileStats> ImportPriorityAndExecTime
-                (this IEnumerable<FileStats> targetFiles, IEnumerable<FileStats> sourceFiles)
+        internal static HashSet<FileStats> SearchAllFiles()
         {
+            List<string> searchPaths = Program.appSettings.TargetFolders;
             return new HashSet<FileStats>(
-                targetFiles.GroupJoin(sourceFiles,
-                                      x => x.FullPathName,
-                                      y => y.FullPathName,
-                                      (x, y) => new FileStats(x.FullPathName,
-                                                              x.FileName,
-                                                              x.ShortPathName,
-                                                              x.UpdateTime,
-                                                              y.FirstOrDefault()?.Priority,
-                                                              y.FirstOrDefault()?.ExecTime)));
+                searchPaths.SelectMany(
+                    x => EnumerateAllFileSystemEntries(x).Select(fn => new FileStats(fn))));
         }
 
         public static IEnumerable<string> EnumerateAllFileSystemEntries(string path)
