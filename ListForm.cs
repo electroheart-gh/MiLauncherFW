@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -175,18 +176,24 @@ namespace MiLauncherFW
                 AdjustWidth();
             }
             else {
-                Height = 0;
-                listView.Columns[0].Width = 0;
-                // TODO: CMICst
-                Width = 100;
+                // TODO: CMICst for Column header height; 30
+                Height = 30;
+                SetColumnHeader();
+                int headerWidth = TextRenderer.MeasureText(Header.Text, listView.Font).Width;
+
+                // TODO: CMICst for allowance between ListView and ListForm; 40
+                Width = headerWidth + 40;
+                // Width might be greater than headerWidth + 40 due to OS and FormBorderStyle restriction
+                listView.Columns[0].Width = Width - 40;
             }
             listView.Refresh();
         }
 
         internal void AdjustHeight()
         {
-            // TODO: CMICst
+            // TODO: CMICst, 30 is Column header height
             Height = listView.GetItemRect(0).Height * Math.Min(Program.appSettings.MaxListLine, listView.VirtualListSize + 1) + 30;
+
         }
 
         internal void AdjustWidth()
@@ -203,11 +210,13 @@ namespace MiLauncherFW
             Width = maxWidth + 40;
         }
 
-        private void SetColumnHeader(int index)
+        private void SetColumnHeader(int? index = null)
         {
-            Header.Text = (SortKey == SortKeyOption.FullPathName)
-                ? "<Path>"
-                : string.Format("<{0}> {1}", SortKey.ToString(), ListViewItems[index].SortValue(SortKey));
+            Header.Text = string.Format("<{0}> ", (SortKey == SortKeyOption.FullPathName) ? "Path" : SortKey.ToString());
+
+            Header.Text += (SortKey != SortKeyOption.FullPathName && index != null)
+                ? ListViewItems[(int)index].SortValue(SortKey)
+                : "--";
 
             // If any, displays additional information defined by ModeCaptions in column header
             if (ModeCaptions == (null, null)) return;

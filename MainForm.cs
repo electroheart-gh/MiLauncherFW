@@ -329,7 +329,7 @@ namespace MiLauncherFW
                 var orgCrawlPath = currentMode.IsCrawlMode() ? currentMode.CrawlMode.CrawlPath : null;
 
                 // Try Crawl and check its return
-                if (!currentMode.CrawlUp(listForm.CurrentItem().FullPathName)) return;
+                if (!currentMode.CrawlUp(listForm.CurrentItem()?.FullPathName)) return;
                 currentMode.CrawlMode.SyncFileSetMutually(searchedFileSet);
 
                 if (!currentMode.IsRestorePrepared()) {
@@ -353,7 +353,7 @@ namespace MiLauncherFW
                 if (!listForm.Visible) return;
 
                 // Try Crawl and check its return
-                if (!currentMode.CrawlDown(listForm.CurrentItem().FullPathName)) return;
+                if (!currentMode.CrawlDown(listForm.CurrentItem()?.FullPathName)) return;
                 currentMode.CrawlMode.SyncFileSetMutually(searchedFileSet);
 
                 if (!currentMode.IsRestorePrepared()) {
@@ -396,7 +396,7 @@ namespace MiLauncherFW
             if (ActiveForm is null) {
                 // TODO: consider when to save fileList
                 // SettingManager.SaveSettings<FileList>(fileList, fileListDataPath);
-                CloseMainForm();
+                // CloseMainForm();
             }
         }
 
