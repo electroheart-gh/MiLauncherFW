@@ -36,6 +36,16 @@ namespace MiLauncherFW
         private CancellationTokenSource tokenSource;
         private ModeController currentMode = new ModeController();
 
+        // Property
+        private int _runningSearchCount;
+        public int RunningSearchCount
+        {
+            get { return _runningSearchCount; }
+            set {
+                _runningSearchCount = value;
+                statusPictureBox.BackColor = (value == 0) ? colorPattern1 : colorPattern5;
+            }
+        }
 
         //
         // Constructor
@@ -43,11 +53,10 @@ namespace MiLauncherFW
         public MainForm()
         {
             InitializeComponent();
-            pictureBox1.BackColor = colorPattern1;
+            basePictureBox.BackColor = colorPattern1;
             var fontName = Program.appSettings.CmdBoxFontName;
             var fontSize = Program.appSettings.CmdBoxFontSize;
             cmdBox.Font = new Font(fontName, fontSize);
-
         }
 
         // Borderless winform with shadow
@@ -76,11 +85,8 @@ namespace MiLauncherFW
             // Load File Set (HashSet<FileStats>)
             searchedFileSet = SettingManager.LoadSettings<HashSet<FileStats>>(searchedFileListDataFile) ?? new HashSet<FileStats>();
 
-            // TODO: Make it method
             // Search Files Async
-            var newSearchedFileSet = await Task.Run(FileSet.SearchAllFiles);
-            searchedFileSet = newSearchedFileSet.ImportPriorityAndExecTime(searchedFileSet).ToHashSet();
-            SettingManager.SaveSettings(searchedFileSet, searchedFileListDataFile);
+            await SearchAllFilesAsync();
         }
 
         private void listView_KeyDown(KeyEventArgs args)
@@ -92,14 +98,7 @@ namespace MiLauncherFW
         {
             ActivateMainForm();
         }
-
-        private void ActivateMainForm()
-        {
-            Visible = true;
-            Activate();
-            BringToFront();
-        }
-
+              
         private async void cmdBox_TextChanged(object sender, EventArgs e)
         {
             tokenSource?.Cancel();
@@ -407,7 +406,7 @@ namespace MiLauncherFW
             }
         }
 
-        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        private void basePictureBox_MouseDown(object sender, MouseEventArgs e)
         {
             // Move MainForm by left button dragging
             if (e.Button == MouseButtons.Left) {
@@ -415,13 +414,33 @@ namespace MiLauncherFW
             }
         }
 
-        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        private void basePictureBox_MouseMove(object sender, MouseEventArgs e)
         {
             // Move MainForm by left button dragging
             if (e.Button == MouseButtons.Left) {
                 Location = new Point(Location.X + e.Location.X - dragStart.X,
                                      Location.Y + e.Location.Y - dragStart.Y);
             }
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private async void searchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            await SearchAllFilesAsync();
+        }
+
+        //
+        // Methods
+        //
+        private void ActivateMainForm()
+        {
+            Visible = true;
+            Activate();
+            BringToFront();
         }
 
         private void CloseMainForm()
@@ -453,9 +472,19 @@ namespace MiLauncherFW
             return new Regex(@"(?>\w*\W*)(?!\w)");
         }
 
-        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        private async Task SearchAllFilesAsync()
         {
-            Application.Exit();
+            RunningSearchCount += 1;
+            try {
+                var newSearchedFileSet = await Task.Run(FileSet.SearchAllFiles);
+                searchedFileSet = newSearchedFileSet.ImportPriorityAndExecTime(searchedFileSet).ToHashSet();
+                SettingManager.SaveSettings(searchedFileSet, searchedFileListDataFile);
+                RunningSearchCount -= 1;
+            }
+            catch (DirectoryNotFoundException) {
+                RunningSearchCount -= 1;
+                statusPictureBox.BackColor = Color.Red;
+            }
         }
     }
 }

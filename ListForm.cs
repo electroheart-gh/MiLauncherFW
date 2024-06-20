@@ -212,7 +212,8 @@ namespace MiLauncherFW
 
         private void SetColumnHeader(int? index = null)
         {
-            Header.Text = string.Format("<{0}> ", (SortKey == SortKeyOption.FullPathName) ? "Path" : SortKey.ToString());
+            var sortKeyString = (SortKey == SortKeyOption.FullPathName) ? "Path" : SortKey.ToString();
+            Header.Text = "<" + sortKeyString + "> ";
 
             Header.Text += (SortKey != SortKeyOption.FullPathName && index != null)
                 ? ListViewItems[(int)index].SortValue(SortKey)

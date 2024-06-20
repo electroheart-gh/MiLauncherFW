@@ -29,35 +29,39 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.basePictureBox = new System.Windows.Forms.PictureBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cmdBox = new System.Windows.Forms.TextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.statusPictureBox = new System.Windows.Forms.PictureBox();
+            this.searchFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            ((System.ComponentModel.ISupportInitialize)(this.basePictureBox)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.statusPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
-            // pictureBox1
+            // basePictureBox
             // 
-            this.pictureBox1.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
-            this.pictureBox1.ContextMenuStrip = this.contextMenuStrip1;
-            this.pictureBox1.Cursor = System.Windows.Forms.Cursors.SizeAll;
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(302, 34);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
-            this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
+            this.basePictureBox.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.basePictureBox.ContextMenuStrip = this.contextMenuStrip1;
+            this.basePictureBox.Cursor = System.Windows.Forms.Cursors.SizeAll;
+            this.basePictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.basePictureBox.Location = new System.Drawing.Point(0, 0);
+            this.basePictureBox.Margin = new System.Windows.Forms.Padding(4);
+            this.basePictureBox.Name = "basePictureBox";
+            this.basePictureBox.Size = new System.Drawing.Size(302, 34);
+            this.basePictureBox.TabIndex = 0;
+            this.basePictureBox.TabStop = false;
+            this.basePictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.basePictureBox_MouseDown);
+            this.basePictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.basePictureBox_MouseMove);
             // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.closeToolStripMenuItem});
+            this.closeToolStripMenuItem,
+            this.searchFilesToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(103, 26);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 70);
             // 
             // closeToolStripMenuItem
             // 
@@ -82,6 +86,22 @@
             this.cmdBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.cmdBox_KeyPress);
             this.cmdBox.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.cmdBox_PreviewKeyDown);
             // 
+            // statusPictureBox
+            // 
+            this.statusPictureBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(152)))), ((int)(((byte)(0)))));
+            this.statusPictureBox.Location = new System.Drawing.Point(16, 2);
+            this.statusPictureBox.Name = "statusPictureBox";
+            this.statusPictureBox.Size = new System.Drawing.Size(284, 30);
+            this.statusPictureBox.TabIndex = 2;
+            this.statusPictureBox.TabStop = false;
+            // 
+            // searchFilesToolStripMenuItem
+            // 
+            this.searchFilesToolStripMenuItem.Name = "searchFilesToolStripMenuItem";
+            this.searchFilesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.searchFilesToolStripMenuItem.Text = "Search Files";
+            this.searchFilesToolStripMenuItem.Click += new System.EventHandler(this.searchToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -90,15 +110,17 @@
             this.ClientSize = new System.Drawing.Size(302, 34);
             this.ControlBox = false;
             this.Controls.Add(this.cmdBox);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.statusPictureBox);
+            this.Controls.Add(this.basePictureBox);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
             this.Deactivate += new System.EventHandler(this.MainForm_Deactivate);
             this.Load += new System.EventHandler(this.MainForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.basePictureBox)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.statusPictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -106,9 +128,11 @@
 
         #endregion
 
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox basePictureBox;
         private System.Windows.Forms.TextBox cmdBox;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
+        private System.Windows.Forms.PictureBox statusPictureBox;
+        private System.Windows.Forms.ToolStripMenuItem searchFilesToolStripMenuItem;
     }
 }
