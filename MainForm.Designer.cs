@@ -32,9 +32,9 @@
             this.basePictureBox = new System.Windows.Forms.PictureBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.searchFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cmdBox = new System.Windows.Forms.TextBox();
             this.statusPictureBox = new System.Windows.Forms.PictureBox();
-            this.searchFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.basePictureBox)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.statusPictureBox)).BeginInit();
@@ -61,14 +61,21 @@
             this.closeToolStripMenuItem,
             this.searchFilesToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(136, 48);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
+            // 
+            // searchFilesToolStripMenuItem
+            // 
+            this.searchFilesToolStripMenuItem.Name = "searchFilesToolStripMenuItem";
+            this.searchFilesToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.searchFilesToolStripMenuItem.Text = "Search Files";
+            this.searchFilesToolStripMenuItem.Click += new System.EventHandler(this.searchToolStripMenuItem_Click);
             // 
             // cmdBox
             // 
@@ -95,13 +102,6 @@
             this.statusPictureBox.TabIndex = 2;
             this.statusPictureBox.TabStop = false;
             // 
-            // searchFilesToolStripMenuItem
-            // 
-            this.searchFilesToolStripMenuItem.Name = "searchFilesToolStripMenuItem";
-            this.searchFilesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.searchFilesToolStripMenuItem.Text = "Search Files";
-            this.searchFilesToolStripMenuItem.Click += new System.EventHandler(this.searchToolStripMenuItem_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -116,6 +116,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
+            this.ShowInTaskbar = false;
             this.Deactivate += new System.EventHandler(this.MainForm_Deactivate);
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.basePictureBox)).EndInit();

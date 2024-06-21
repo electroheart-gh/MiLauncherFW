@@ -23,7 +23,7 @@ namespace MiLauncherFW
                 appSettings = new AppSettings();
             }
             // Save configuration
-            SettingManager.SaveSettings(appSettings, configFilePath);
+            SettingManager.SaveSettingsNoEscape(appSettings, configFilePath);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
