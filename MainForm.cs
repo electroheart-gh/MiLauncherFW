@@ -325,6 +325,7 @@ namespace MiLauncherFW
             else if (e.KeyCode == Keys.Oemcomma && e.Control) {
                 if (!listForm.Visible) return;
 
+                // Keep the original path to be selected in the new list
                 var orgCrawlPath = currentMode.IsCrawlMode() ? currentMode.CrawlMode.CrawlPath : null;
 
                 // Try Crawl and check its return
@@ -338,10 +339,10 @@ namespace MiLauncherFW
 
                 cmdBox.Text = string.Empty;
                 listForm.ModeCaptions = currentMode.GetCrawlCaptions();
-                var crawlFileSetList = currentMode.GetCrawlFileSet().ToList();
-                listForm.SetVirtualList(crawlFileSetList);
+                listForm.SetVirtualList(currentMode.GetCrawlFileSet().ToList());
 
-                var orgPathIndex = crawlFileSetList.FindIndex(x => x.FullPathName == orgCrawlPath);
+                // Find index of the original path after the sort in SetVirtualList()
+                var orgPathIndex = listForm.ListViewItems.FindIndex(x => x.FullPathName == orgCrawlPath);
                 listForm.ShowAt(null, null, orgPathIndex);
 
 
