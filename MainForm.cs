@@ -98,7 +98,7 @@ namespace MiLauncherFW
         {
             ActivateMainForm();
         }
-              
+
         private async void cmdBox_TextChanged(object sender, EventArgs e)
         {
             tokenSource?.Cancel();
@@ -397,6 +397,7 @@ namespace MiLauncherFW
                 // TODO: consider when to save fileList
                 // SettingManager.SaveSettings<FileList>(fileList, fileListDataPath);
                 // CloseMainForm();
+                listForm.Visible = false;
             }
         }
 
@@ -439,6 +440,7 @@ namespace MiLauncherFW
         //
         private void ActivateMainForm()
         {
+            // Show() does not working
             Visible = true;
             Activate();
             BringToFront();
@@ -487,5 +489,35 @@ namespace MiLauncherFW
                 statusPictureBox.BackColor = Color.Red;
             }
         }
+
+        private void MainForm_Activated(object sender, EventArgs e)
+        {
+            ////listForm.BringToFront();
+            //Debug.WriteLine("Main Activated: " + listForm.ShowingProcess);
+            //if (listForm.Visible && !listForm.ShowingProcess) {
+            //    Debug.WriteLine("List Activating begin");
+            //    Debug.WriteLine("cmdBox: " + cmdBox.Text);
+            //    cmdBox.Text += " ";
+            //    cmdBox.Text = cmdBox.Text.Substring(0, cmdBox.Text.Length - 1);
+            //    Debug.WriteLine("cmdBox: " + cmdBox.Text);
+
+            //    //listForm.Visible = false;
+            //    //listForm.Visible = true;
+            //    Debug.WriteLine("List Activating end");
+
+            //Thread.Sleep(1000);
+            //Task.Delay(1000);
+
+            //listForm.ShowingProcess = true;
+            //Debug.WriteLine("Main Activation begin");
+            //ActivateMainForm();
+            //Activate();
+
+            //Debug.WriteLine("Main Activation end");
+            //Debug.WriteLine("");
+            //listForm.ShowingProcess = false;
+            //listForm.ShowAt(Location.X - 6, Location.Y + Height - 5);
+        }
     }
 }
+

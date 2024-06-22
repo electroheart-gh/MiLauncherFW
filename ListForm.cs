@@ -19,7 +19,7 @@ namespace MiLauncherFW
         //
         // Properties
         //
-        internal List<FileStats> ListViewItems { get; private set; }
+        internal List<FileStats> ListViewItems { get; private set; } = new List<FileStats>();
         internal SortKeyOption SortKey { get; set; } = SortKeyOption.Priority;
         internal (string, string) ModeCaptions { get; set; }
 
@@ -87,7 +87,7 @@ namespace MiLauncherFW
 
             Rectangle bounds = e.Bounds;
 
-            // Captures SortKey name and value
+            // Capture SortKey name and value
             var sortKeyMatch = Regex.Match(e.Header.Text, @"^(<[^>]*>)([^<]*)");
             // Display SortKey name
             TextRenderer.DrawText(e.Graphics, sortKeyMatch.Groups[1].Value, e.Font, bounds, Color.White, TextFormatFlags.NoPadding);
@@ -96,7 +96,7 @@ namespace MiLauncherFW
             TextRenderer.DrawText(e.Graphics, sortKeyMatch.Groups[2].Value, e.Font, bounds, MainForm.colorPattern5, TextFormatFlags.NoPadding);
             bounds.X += TextRenderer.MeasureText(e.Graphics, sortKeyMatch.Groups[2].Value, e.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
 
-            // Captures CrawlMode name and CrawlPath
+            // Capture CrawlMode name and CrawlPath
             var crawlModeMatch = Regex.Match(e.Header.Text, @"(<CrawlMode> .*\\)(.*)");
             if (crawlModeMatch.Success) {
                 // Display SortKey name
@@ -257,6 +257,6 @@ namespace MiLauncherFW
             int z = x % y;
             return (z >= 0) ? z : z + y;
         }
-
+        
     }
 }
