@@ -488,6 +488,11 @@ namespace MiLauncherFW
                 RunningSearchCount -= 1;
                 statusPictureBox.BackColor = Color.Red;
             }
+
+            catch (IOException) {
+                RunningSearchCount -= 1;
+                statusPictureBox.BackColor = Color.Red;
+            }
         }
 
         private void MainForm_Activated(object sender, EventArgs e)
