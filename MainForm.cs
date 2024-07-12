@@ -163,13 +163,9 @@ namespace MiLauncherFW
                 var execFileStats = listForm.CurrentItem();
                 if (execFileStats is null) return;
 
-                try {
-                    Process.Start("explorer.exe", execFileStats.FullPathName);
-                }
-                catch (FileNotFoundException) {
-                    Debug.WriteLine("File Not Found");
-                    return;
-                }
+                // Fire and forget pattern
+                Task.Run(() =>
+                    Process.Start("explorer.exe", execFileStats.FullPathName));
 
                 // TODO: CMIC priority +1
                 var fileStats = searchedFileSet.FirstOrDefault(x => x.FullPathName == execFileStats.FullPathName);
