@@ -164,21 +164,24 @@ namespace MiLauncherFW
                 if (execFileStats is null) return;
 
                 // Fire and forget pattern
+                // No error handling so as to increment priority even if failed to open the file
                 Task.Run(() =>
-                    Process.Start("explorer.exe", execFileStats.FullPathName));
+                {
+                    Process.Start("explorer.exe", execFileStats.FullPathName);
 
-                // TODO: CMIC priority +1
-                var fileStats = searchedFileSet.FirstOrDefault(x => x.FullPathName == execFileStats.FullPathName);
-                if (fileStats is null) {
-                    // Add to searchedFileSet temporarily, even though it might be removed after searchAllFiles()
-                    execFileStats.Priority += 1;
-                    execFileStats.ExecTime = DateTime.Now;
-                    searchedFileSet.Add(execFileStats);
-                }
-                else {
-                    fileStats.Priority += 1;
-                    fileStats.ExecTime = DateTime.Now;
-                }
+                    // TODO: CMIC priority +1
+                    var fileStats = searchedFileSet.FirstOrDefault(x => x.FullPathName == execFileStats.FullPathName);
+                    if (fileStats is null) {
+                        // Add to searchedFileSet temporarily, even though it might be removed after searchAllFiles()
+                        execFileStats.Priority += 1;
+                        execFileStats.ExecTime = DateTime.Now;
+                        searchedFileSet.Add(execFileStats);
+                    }
+                    else {
+                        fileStats.Priority += 1;
+                        fileStats.ExecTime = DateTime.Now;
+                    }
+                });
                 CloseMainForm();
             }
             // Open directory of item (itself or parent)
@@ -186,24 +189,22 @@ namespace MiLauncherFW
                 var execFileStats = listForm.CurrentItem();
                 if (execFileStats is null) return;
 
-                var targetDirectoryName = (Directory.Exists(execFileStats.FullPathName))
-                                        ? execFileStats.FullPathName
-                                        : Path.GetDirectoryName(execFileStats.FullPathName);
-
-                try {
+                // Fire and forget pattern
+                // No error handling so as to increment priority even if failed to open the directory
+                Task.Run(() =>
+                {
+                    var targetDirectoryName = (Program.appSettings.OpenDirectoryItself &&
+                                               Directory.Exists(execFileStats.FullPathName))
+                                            ? execFileStats.FullPathName
+                                            : Path.GetDirectoryName(execFileStats.FullPathName);
                     Process.Start("explorer.exe", targetDirectoryName);
-                }
-                catch (FileNotFoundException) {
-                    Debug.WriteLine("File Not Found");
-                    return;
-                }
-
-                // TODO: CMIC priority +1
-                var fileStats = searchedFileSet.FirstOrDefault(x => x.FullPathName == targetDirectoryName);
-                if (fileStats != null) {
-                    fileStats.Priority += 1;
-                    fileStats.ExecTime = DateTime.Now;
-                }
+                    // TODO: CMIC priority +1
+                    var fileStats = searchedFileSet.FirstOrDefault(x => x.FullPathName == targetDirectoryName);
+                    if (fileStats != null) {
+                        fileStats.Priority += 1;
+                        fileStats.ExecTime = DateTime.Now;
+                    }
+                });
                 CloseMainForm();
             }
             // Copy file path to clipboard
