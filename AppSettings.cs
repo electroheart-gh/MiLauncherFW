@@ -21,6 +21,7 @@ namespace MiLauncherFW
         public float ListViewFontSize { get; set; }
 
         public bool OpenDirectoryItself { get; set; }
+        public bool SaveFileListWhenHide{ get; set; }
 
 
 

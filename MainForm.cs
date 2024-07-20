@@ -154,9 +154,9 @@ namespace MiLauncherFW
             // TODO: Implement keymap class to make keymap configurable
             // TODO: <CAUTION> No check for unnecessary Key modifiers !!!
 
-            // Close MainForm
+            // Hide MainForm
             if (e.KeyCode == Keys.Escape) {
-                CloseMainForm();
+                HideMainForm();
             }
             // Exec file with associated app
             else if ((e.KeyCode == Keys.Enter && !e.Alt) || (e.KeyCode == Keys.M && e.Control)) {
@@ -182,7 +182,7 @@ namespace MiLauncherFW
                         fileStats.ExecTime = DateTime.Now;
                     }
                 });
-                CloseMainForm();
+                HideMainForm();
             }
             // Open directory of item (itself or parent)
             else if (e.KeyCode == Keys.Enter && e.Alt) {
@@ -205,7 +205,7 @@ namespace MiLauncherFW
                         fileStats.ExecTime = DateTime.Now;
                     }
                 });
-                CloseMainForm();
+                HideMainForm();
             }
             // Copy file path to clipboard
             else if (e.KeyCode == Keys.C && e.Control && !e.Shift) {
@@ -443,7 +443,7 @@ namespace MiLauncherFW
             BringToFront();
         }
 
-        private void CloseMainForm()
+        private void HideMainForm()
         {
             // Force to exit Crawl mode regardless of any mode
             currentMode.ExitCrawl();
@@ -457,7 +457,10 @@ namespace MiLauncherFW
 
             Visible = false;
             listForm.Visible = false;
-            SettingManager.SaveSettings(searchedFileSet, searchedFileListDataFile);
+
+            if (Program.appSettings.SaveFileListWhenHide) {
+                SettingManager.SaveSettings(searchedFileSet, searchedFileListDataFile);
+            }
         }
 
         //[GeneratedRegex(@"\w*\W*")]
@@ -485,7 +488,6 @@ namespace MiLauncherFW
                 RunningSearchCount -= 1;
                 statusPictureBox.BackColor = Color.Red;
             }
-
             catch (IOException) {
                 RunningSearchCount -= 1;
                 statusPictureBox.BackColor = Color.Red;
@@ -519,6 +521,11 @@ namespace MiLauncherFW
             //Debug.WriteLine("");
             //listForm.ShowingProcess = false;
             //listForm.ShowAt(Location.X - 6, Location.Y + Height - 5);
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            SettingManager.SaveSettings(searchedFileSet, searchedFileListDataFile);
         }
     }
 }
