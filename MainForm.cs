@@ -523,7 +523,7 @@ namespace MiLauncherFW
             //listForm.ShowAt(Location.X - 6, Location.Y + Height - 5);
         }
 
-        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             SettingManager.SaveSettings(searchedFileSet, searchedFileListDataFile);
         }
