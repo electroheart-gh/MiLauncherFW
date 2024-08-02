@@ -1,0 +1,33 @@
+{
+  "HideMainForm": [ "Escape" ],
+  "ExecItem": [ "Enter", "C-m" ],
+  "OpenDirectory": [ "M-Enter" ],
+
+  "BeginningLine": [ "C-a" ],
+  "EndLine": [ "C-e" ],
+
+  "ForwardChar": [ "C-f" ],
+  "BackwardChar": [ "C-b" ],
+  "DeleteChar": [ "C-d" ],
+  "BackSpace": [ "C-h" ],
+
+  "ForwardWord": [ "M-f" ],
+  "BackwardWord": [ "M-b" ],
+  "DeleteWord": [ "M-d" ],
+  "BackwardDeleteWord": [ "M-h" ],
+
+  "CrawlUpward": [ "C-OemComma" ],
+  "CrawlDownward": [ "C-OemPeriod" ],
+  "ExitCrawl": [ "C-g" ],
+
+
+  "SelectNextItem": [ "C-n" ],
+  "SelectPrevItem": [ "C-p" ],
+
+  "SortByPriority": [ "C-D7" ],
+  "SortByExecTime": [ "C-D8" ],
+  "SortByPath": [ "C-D9" ],
+  "SortByUpdateTime": [ "C-D0" ],
+
+  "CopyPath": [ "C-c" ]
+}

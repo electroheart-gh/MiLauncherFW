@@ -128,37 +128,6 @@ namespace MiLauncherFW
             return (Visible & listView.VirtualListSize > 0) ? ListViewItems[VirtualListIndex] : null;
         }
 
-        internal void SelectNextItem()
-        {
-            if (listView.VirtualListSize == 0) return;
-
-            VirtualListIndex++;
-            SetColumnHeader(VirtualListIndex);
-
-            var originalScrollPosition = listView.GetItemRect(0).Y;
-            listView.EnsureVisible(VirtualListIndex);
-
-            // Resize column width only if displaying initially or scrolling list in order to reduce flickers
-            // If GetItemRect(0).Y changes after EnsureVisible(), list view scrolls. Then, resize column
-            if (VirtualListIndex == 0 || originalScrollPosition != listView.GetItemRect(0).Y)
-                AdjustWidth();
-        }
-
-        internal void SelectPreviousItem()
-        {
-            if (listView.VirtualListSize == 0) return;
-
-            VirtualListIndex--;
-            SetColumnHeader(VirtualListIndex);
-
-            var originalScrollPosition = listView.GetItemRect(0).Y;
-            listView.EnsureVisible(VirtualListIndex);
-
-            // Resize column width only if displaying initially or scrolling list in order to reduce flickers
-            // If GetItemRect(0).Y changes after EnsureVisible(), list view scrolls. Then, resize column
-            if (VirtualListIndex == 0 || originalScrollPosition != listView.GetItemRect(0).Y)
-                AdjustWidth();
-        }
 
         internal void ShowAt(int? x = null, int? y = null, int index = 0)
         {
@@ -192,7 +161,6 @@ namespace MiLauncherFW
         {
             // TODO: CMICst, 30 is Column header height
             Height = listView.GetItemRect(0).Height * Math.Min(Program.appSettings.MaxListLine, listView.VirtualListSize + 1) + 30;
-
         }
 
         internal void AdjustWidth()
@@ -226,25 +194,6 @@ namespace MiLauncherFW
             Header.Text += FileStats.GetShortenedString(ModeCaptions.Item2, baseWidth) ?? ModeCaptions.Item2;
         }
 
-        internal void CycleSortKey()
-        {
-            switch (SortKey) {
-                case SortKeyOption.Priority:
-                    SortKey = SortKeyOption.ExecTime;
-                    break;
-                case SortKeyOption.ExecTime:
-                    SortKey = SortKeyOption.UpdateTime;
-                    break;
-                case SortKeyOption.UpdateTime:
-                    SortKey = SortKeyOption.FullPathName;
-                    break;
-                default:
-                    SortKey = SortKeyOption.Priority;
-                    break;
-            }
-            SetVirtualList();
-        }
-
         internal void ChangeSortKey(SortKeyOption sortKey)
         {
             SortKey = sortKey;
@@ -257,5 +206,53 @@ namespace MiLauncherFW
             return (z >= 0) ? z : z + y;
         }
 
+        //
+        // Methods for commands
+        //
+        internal void SelectNextItem()
+        {
+            if (listView.VirtualListSize == 0) return;
+
+            VirtualListIndex++;
+            SetColumnHeader(VirtualListIndex);
+
+            var originalScrollPosition = listView.GetItemRect(0).Y;
+            listView.EnsureVisible(VirtualListIndex);
+
+            // Resize column width only if displaying initially or scrolling list in order to reduce flickers
+            // If GetItemRect(0).Y changes after EnsureVisible(), list view scrolls. Then, resize column
+            if (VirtualListIndex == 0 || originalScrollPosition != listView.GetItemRect(0).Y)
+                AdjustWidth();
+        }
+
+        internal void SelectPreviousItem()
+        {
+            if (listView.VirtualListSize == 0) return;
+
+            VirtualListIndex--;
+            SetColumnHeader(VirtualListIndex);
+
+            var originalScrollPosition = listView.GetItemRect(0).Y;
+            listView.EnsureVisible(VirtualListIndex);
+
+            // Resize column width only if displaying initially or scrolling list in order to reduce flickers
+            // If GetItemRect(0).Y changes after EnsureVisible(), list view scrolls. Then, resize column
+            if (VirtualListIndex == 0 || originalScrollPosition != listView.GetItemRect(0).Y)
+                AdjustWidth();
+        }
+
+        // Sort by a key
+        internal void SortBy(SortKeyOption option)
+        {
+            if (!Visible) return;
+            ChangeSortKey(option);
+            ShowAt();
+        }
+
+        // Copy file path to clipboard
+        internal void CopyPath()
+        {
+            Clipboard.SetText(CurrentItem().FullPathName);
+        }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -35,6 +34,7 @@ namespace MiLauncherFW
         private HashSet<FileStats> searchedFileSet;
         private CancellationTokenSource tokenSource;
         private ModeController currentMode = new ModeController();
+        private KeyMapController keyMapController;
 
         // Property
         private int _runningSearchCount;
@@ -53,10 +53,6 @@ namespace MiLauncherFW
         public MainForm()
         {
             InitializeComponent();
-            basePictureBox.BackColor = colorPattern1;
-            var fontName = Program.appSettings.CmdBoxFontName;
-            var fontSize = Program.appSettings.CmdBoxFontSize;
-            cmdBox.Font = new Font(fontName, fontSize);
         }
 
         // Borderless winform with shadow
@@ -78,12 +74,49 @@ namespace MiLauncherFW
             hotKey = new HotKey(MOD_KEY.ALT | MOD_KEY.CONTROL, Keys.F);
             hotKey.HotKeyPush += new EventHandler(hotKey_HotKeyPush);
 
+            // Set color, font and size
+            basePictureBox.BackColor = colorPattern1;
+            var fontName = Program.appSettings.CmdBoxFontName;
+            var fontSize = Program.appSettings.CmdBoxFontSize;
+            cmdBox.Font = new Font(fontName, fontSize);
+
             // List Form
             listForm = new ListForm();
             listForm.ListViewKeyDown = listView_KeyDown;
 
             // Load File Set (HashSet<FileStats>)
             searchedFileSet = SettingManager.LoadSettings<HashSet<FileStats>>(searchedFileListDataFile) ?? new HashSet<FileStats>();
+
+            // Key Mapping
+            keyMapController = new KeyMapController();
+            keyMapController.AttachTo(cmdBox);
+
+            keyMapController.RegisterAction("HideMainForm", HideMainForm);
+            keyMapController.RegisterAction("ExecItem", ExecItem);
+            keyMapController.RegisterAction("OpenDirectory", OpenDirectory);
+            keyMapController.RegisterAction("BeginningLine", BeginningLine);
+            keyMapController.RegisterAction("EndLine", EndLine);
+            keyMapController.RegisterAction("ForwardChar", ForwardChar);
+            keyMapController.RegisterAction("BackwardChar", BackwardChar);
+            keyMapController.RegisterAction("DeleteChar", DeleteChar);
+            keyMapController.RegisterAction("BackSpace", BackSpace);
+            keyMapController.RegisterAction("ForwardWord", ForwardWord);
+            keyMapController.RegisterAction("BackwardWord", BackwardWord);
+            keyMapController.RegisterAction("DeleteWord", DeleteWord);
+            keyMapController.RegisterAction("BackwardDeleteWord", BackwardDeleteWord);
+            keyMapController.RegisterAction("CrawlUpward", CrawlUpward);
+            keyMapController.RegisterAction("CrawlDownward", CrawlDownward);
+            keyMapController.RegisterAction("ExitCrawl", ExitCrawl);
+
+            keyMapController.RegisterAction("SelectNextItem", listForm.SelectNextItem);
+            keyMapController.RegisterAction("SelectPrevItem", listForm.SelectPreviousItem);
+            keyMapController.RegisterAction("SortByPriority", () => listForm.SortBy(SortKeyOption.Priority));
+            keyMapController.RegisterAction("SortByExecTime", () => listForm.SortBy(SortKeyOption.ExecTime));
+            keyMapController.RegisterAction("SortByPath", () => listForm.SortBy(SortKeyOption.FullPathName));
+            keyMapController.RegisterAction("SortByUpdateTime", () => listForm.SortBy(SortKeyOption.UpdateTime));
+            keyMapController.RegisterAction("CopyPath", listForm.CopyPath);
+
+            keyMapController.LoadKeyMapFromFile("keymap.json");
 
             // Search Files Async
             await SearchAllFilesAsync();
@@ -146,254 +179,11 @@ namespace MiLauncherFW
             }
         }
 
-        // Implement Ctrl- and Alt- commands in KeyDown event
-        // It is because e.KeyChar of KeyPress returns a value depending on modifiers input,
-        // which requires to check KeyChar of Ctrl-(char) in advance of coding
-        private void cmdBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            // TODO: Implement keymap class to make keymap configurable
-            // TODO: <CAUTION> No check for unnecessary Key modifiers !!!
-
-            // Hide MainForm
-            if (e.KeyCode == Keys.Escape) {
-                HideMainForm();
-            }
-            // Exec file with associated app
-            else if ((e.KeyCode == Keys.Enter && !e.Alt) || (e.KeyCode == Keys.M && e.Control)) {
-                var execFileStats = listForm.CurrentItem();
-                if (execFileStats is null) return;
-
-                // Fire and forget pattern
-                // No error handling so as to increment priority even if failed to open the file
-                Task.Run(() =>
-                {
-                    Process.Start("explorer.exe", execFileStats.FullPathName);
-
-                    // TODO: CMIC priority +1
-                    var fileStats = searchedFileSet.FirstOrDefault(x => x.FullPathName == execFileStats.FullPathName);
-                    if (fileStats is null) {
-                        // Add to searchedFileSet temporarily, even though it might be removed after searchAllFiles()
-                        execFileStats.Priority += 1;
-                        execFileStats.ExecTime = DateTime.Now;
-                        searchedFileSet.Add(execFileStats);
-                    }
-                    else {
-                        fileStats.Priority += 1;
-                        fileStats.ExecTime = DateTime.Now;
-                    }
-                });
-                HideMainForm();
-            }
-            // Open directory of item (itself or parent)
-            else if (e.KeyCode == Keys.Enter && e.Alt) {
-                var execFileStats = listForm.CurrentItem();
-                if (execFileStats is null) return;
-
-                // Fire and forget pattern
-                // No error handling so as to increment priority even if failed to open the directory
-                Task.Run(() =>
-                {
-                    var targetDirectoryName = (Program.appSettings.OpenDirectoryItself &&
-                                               Directory.Exists(execFileStats.FullPathName))
-                                            ? execFileStats.FullPathName
-                                            : Path.GetDirectoryName(execFileStats.FullPathName);
-                    Process.Start("explorer.exe", targetDirectoryName);
-                    // TODO: CMIC priority +1
-                    var fileStats = searchedFileSet.FirstOrDefault(x => x.FullPathName == targetDirectoryName);
-                    if (fileStats != null) {
-                        fileStats.Priority += 1;
-                        fileStats.ExecTime = DateTime.Now;
-                    }
-                });
-                HideMainForm();
-            }
-            // Copy file path to clipboard
-            else if (e.KeyCode == Keys.C && e.Control && !e.Shift) {
-                Clipboard.SetText(listForm.CurrentItem().FullPathName);
-            }
-            //// Copy file path in UNC to clipboard
-            //if (e.KeyCode == Keys.C && e.Control && e.Shift) {
-            //    Clipboard.SetText(ConvertToUNC(listForm.GetItem().FullPathName));
-            //}
-            // beginning of line
-            else if (e.KeyCode == Keys.A && e.Control) {
-                cmdBox.SelectionStart = 0;
-            }
-            // end of line
-            else if (e.KeyCode == Keys.E && e.Control) {
-                cmdBox.SelectionStart = cmdBox.Text.Length;
-            }
-            // forward char
-            else if (e.KeyCode == Keys.F && e.Control) {
-                cmdBox.SelectionStart++;
-            }
-            // backward char
-            else if (e.KeyCode == Keys.B && e.Control) {
-                cmdBox.SelectionStart = Math.Max(0, cmdBox.SelectionStart - 1);
-            }
-            // backspace
-            else if (e.KeyCode == Keys.H && e.Control) {
-                var pos = cmdBox.SelectionStart;
-                if (pos > 0) {
-                    cmdBox.Text = cmdBox.Text.Remove(pos - 1, 1);
-                    cmdBox.SelectionStart = pos - 1;
-                }
-            }
-            // delete char
-            else if (e.KeyCode == Keys.D && e.Control) {
-                var pos = cmdBox.SelectionStart;
-                if (pos < cmdBox.Text.Length) {
-                    cmdBox.Text = cmdBox.Text.Remove(pos, 1);
-                    cmdBox.SelectionStart = pos;
-                }
-            }
-            // select next item
-            else if (e.KeyCode == Keys.N && e.Control) {
-                listForm.SelectNextItem();
-            }
-            // select previous item
-            else if (e.KeyCode == Keys.P && e.Control) {
-                listForm.SelectPreviousItem();
-            }
-            // forward word
-            else if (e.KeyCode == Keys.F && e.Alt) {
-                Regex pattern = NextWordRegex();
-                Match m = pattern.Match(cmdBox.Text, cmdBox.SelectionStart);
-                cmdBox.SelectionStart = Math.Max(m.Index + m.Length, cmdBox.SelectionStart);
-            }
-            // backward word
-            else if (e.KeyCode == Keys.B && e.Alt) {
-                Regex pattern = PreviousWordRegex();
-                Match m = pattern.Match(cmdBox.Text.Substring(0, cmdBox.SelectionStart));
-                cmdBox.SelectionStart = m.Index;
-            }
-            // delete word
-            else if (e.KeyCode == Keys.D && e.Alt) {
-                var cursorPosition = cmdBox.SelectionStart;
-                Regex pattern = NextWordRegex();
-                cmdBox.Text = pattern.Replace(cmdBox.Text, "", 1, cursorPosition);
-                cmdBox.SelectionStart = cursorPosition;
-            }
-            // backward delete word
-            else if (e.KeyCode == Keys.H && e.Alt) {
-                // Using Non-backtracking and negative lookahead assertion of Regex
-                Regex pattern = PreviousWordRegex();
-                var firstHalf = pattern.Replace(cmdBox.Text.Substring(0, cmdBox.SelectionStart), "");
-                cmdBox.Text = firstHalf + cmdBox.Text.Substring(cmdBox.SelectionStart);
-                cmdBox.SelectionStart = firstHalf.Length;
-            }
-            // Cycle ListView sort key
-            // Keys.Oemtilde indicates @ (at mark)
-            else if (e.KeyCode == Keys.Oemtilde && e.Control) {
-                if (!listForm.Visible) return;
-
-                listForm.CycleSortKey();
-                listForm.ShowAt();
-            }
-            // Sort by priority
-            else if (e.KeyCode == Keys.D7 && e.Control) {
-                if (!listForm.Visible) return;
-
-                listForm.ChangeSortKey(SortKeyOption.Priority);
-                listForm.ShowAt();
-            }
-            // Sort by exec time
-            else if (e.KeyCode == Keys.D8 && e.Control) {
-                if (!listForm.Visible) return;
-
-                listForm.ChangeSortKey(SortKeyOption.ExecTime);
-                listForm.ShowAt();
-            }
-            // Sort by path
-            else if (e.KeyCode == Keys.D9 && e.Control) {
-                if (!listForm.Visible) return;
-
-                listForm.ChangeSortKey(SortKeyOption.FullPathName);
-                listForm.ShowAt();
-            }
-            // Sort by update time
-            else if (e.KeyCode == Keys.D0 && e.Control) {
-                if (!listForm.Visible) return;
-
-                listForm.ChangeSortKey(SortKeyOption.UpdateTime);
-                listForm.ShowAt();
-            }
-            // Crawl folder upwards
-            else if (e.KeyCode == Keys.Oemcomma && e.Control) {
-                if (!listForm.Visible) return;
-
-                // Keep the original path to be selected in the new list
-                var orgCrawlPath = currentMode.IsCrawlMode() ? currentMode.CrawlMode.CrawlPath : null;
-
-                // Try Crawl and check its return
-                if (!currentMode.CrawlUp(listForm.CurrentItem()?.FullPathName)) return;
-                currentMode.CrawlMode.SyncFileSetMutually(searchedFileSet);
-
-                if (!currentMode.IsRestorePrepared()) {
-                    currentMode.PrepareRestore(cmdBox.Text, listForm.VirtualListIndex,
-                        listForm.SortKey, listForm.ListViewItems);
-                }
-
-                cmdBox.Text = string.Empty;
-                listForm.ModeCaptions = currentMode.GetCrawlCaptions();
-                listForm.SetVirtualList(currentMode.GetCrawlFileSet().ToList());
-
-                // Find index of the original path after the sort in SetVirtualList()
-                var orgPathIndex = listForm.ListViewItems.FindIndex(x => x.FullPathName == orgCrawlPath);
-                listForm.ShowAt(null, null, orgPathIndex);
-
-
-                Activate();
-            }
-            // Crawl folder downwards
-            else if (e.KeyCode == Keys.OemPeriod && e.Control) {
-                if (!listForm.Visible) return;
-
-                // Try Crawl and check its return
-                if (!currentMode.CrawlDown(listForm.CurrentItem()?.FullPathName)) return;
-                currentMode.CrawlMode.SyncFileSetMutually(searchedFileSet);
-
-                if (!currentMode.IsRestorePrepared()) {
-                    currentMode.PrepareRestore(cmdBox.Text, listForm.VirtualListIndex,
-                        listForm.SortKey, listForm.ListViewItems);
-                }
-
-                cmdBox.Text = string.Empty;
-                listForm.ModeCaptions = currentMode.GetCrawlCaptions();
-                listForm.SetVirtualList(currentMode.GetCrawlFileSet().ToList());
-
-                listForm.ShowAt();
-                Activate();
-            }
-            // Exit crawl mode
-            else if (e.KeyCode == Keys.G && e.Control) {
-                if (!listForm.Visible) return;
-                if (!currentMode.IsCrawlMode()) return;
-
-                currentMode.ExitCrawl();
-
-                currentMode.ActivateRestore();
-                listForm.ModeCaptions = (null, null);
-                listForm.SortKey = currentMode.RestoreSortKey();
-                listForm.SetVirtualList(currentMode.RestoreItems());
-                cmdBox.Text = currentMode.RestoreCmdBoxText();
-                listForm.ShowAt(null, null, currentMode.RestoreIndex());
-                currentMode.ExitRestore();
-
-                Activate();
-            }
-            // TODO: Cycle backwards ListView sort key 
-            // TODO: implement search history using M-p, M-n
-        }
-
         private void MainForm_Deactivate(object sender, EventArgs e)
         {
             // As Sometimes Deactivate is called even if MainForm is active,
             // So check ActiveForm is null or not
             if (ActiveForm is null) {
-                // TODO: consider when to save fileList
-                // SettingManager.SaveSettings<FileList>(fileList, fileListDataPath);
-                // CloseMainForm();
                 listForm.Visible = false;
             }
         }
@@ -463,18 +253,6 @@ namespace MiLauncherFW
             }
         }
 
-        //[GeneratedRegex(@"\w*\W*")]
-        private static Regex NextWordRegex()
-        {
-            return new Regex(@"\w*\W*");
-        }
-
-        // Using Non-backtracking and negative lookahead assertion of Regex
-        private static Regex PreviousWordRegex()
-        {
-            return new Regex(@"(?>\w*\W*)(?!\w)");
-        }
-
         private async Task SearchAllFilesAsync()
         {
             RunningSearchCount += 1;
@@ -492,35 +270,6 @@ namespace MiLauncherFW
                 RunningSearchCount -= 1;
                 statusPictureBox.BackColor = Color.Red;
             }
-        }
-
-        private void MainForm_Activated(object sender, EventArgs e)
-        {
-            ////listForm.BringToFront();
-            //Debug.WriteLine("Main Activated: " + listForm.ShowingProcess);
-            //if (listForm.Visible && !listForm.ShowingProcess) {
-            //    Debug.WriteLine("List Activating begin");
-            //    Debug.WriteLine("cmdBox: " + cmdBox.Text);
-            //    cmdBox.Text += " ";
-            //    cmdBox.Text = cmdBox.Text.Substring(0, cmdBox.Text.Length - 1);
-            //    Debug.WriteLine("cmdBox: " + cmdBox.Text);
-
-            //    //listForm.Visible = false;
-            //    //listForm.Visible = true;
-            //    Debug.WriteLine("List Activating end");
-
-            //Thread.Sleep(1000);
-            //Task.Delay(1000);
-
-            //listForm.ShowingProcess = true;
-            //Debug.WriteLine("Main Activation begin");
-            //ActivateMainForm();
-            //Activate();
-
-            //Debug.WriteLine("Main Activation end");
-            //Debug.WriteLine("");
-            //listForm.ShowingProcess = false;
-            //listForm.ShowAt(Location.X - 6, Location.Y + Height - 5);
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
