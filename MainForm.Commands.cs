@@ -11,7 +11,6 @@ namespace MiLauncherFW
     {
         // TODO: Consider to merge to MainForm.cs later
 
-        // Exec file with associated app
         private void ExecItem()
         {
             var execFileStats = listForm.CurrentItem();
@@ -39,7 +38,6 @@ namespace MiLauncherFW
             HideMainForm();
         }
 
-        // Open directory of item (itself or parent)
         private void OpenDirectory()
         {
             var execFileStats = listForm.CurrentItem();
@@ -64,31 +62,27 @@ namespace MiLauncherFW
             HideMainForm();
         }
 
-        // beginning of line
         private void BeginningLine()
         {
             cmdBox.SelectionStart = 0;
         }
 
-        // end of line
         private void EndLine()
         {
             cmdBox.SelectionStart = cmdBox.Text.Length;
 
         }
 
-        // forward char
         private void ForwardChar()
         {
             cmdBox.SelectionStart++;
         }
 
-        // backward char
         private void BackwardChar()
         {
             cmdBox.SelectionStart = Math.Max(0, cmdBox.SelectionStart - 1);
         }
-        // backspace
+
         private void BackSpace()
         {
             var pos = cmdBox.SelectionStart;
@@ -98,7 +92,6 @@ namespace MiLauncherFW
             }
         }
 
-        // delete char
         private void DeleteChar()
         {
             var pos = cmdBox.SelectionStart;
@@ -108,7 +101,6 @@ namespace MiLauncherFW
             }
         }
 
-        // forward word
         private void ForwardWord()
         {
             Regex pattern = NextWordRegex();
@@ -116,7 +108,6 @@ namespace MiLauncherFW
             cmdBox.SelectionStart = Math.Max(m.Index + m.Length, cmdBox.SelectionStart);
         }
 
-        // backward word
         private void BackwardWord()
         {
             Regex pattern = PreviousWordRegex();
@@ -124,7 +115,6 @@ namespace MiLauncherFW
             cmdBox.SelectionStart = m.Index;
         }
 
-        // delete word
         private void DeleteWord()
         {
             var cursorPosition = cmdBox.SelectionStart;
@@ -133,7 +123,6 @@ namespace MiLauncherFW
             cmdBox.SelectionStart = cursorPosition;
         }
 
-        // backward delete word
         private void BackwardDeleteWord()
         {
             // Using Non-backtracking and negative lookahead assertion of Regex
@@ -155,7 +144,6 @@ namespace MiLauncherFW
             return new Regex(@"(?>\w*\W*)(?!\w)");
         }
 
-        // Crawl folder upwards
         private void CrawlUpward()
         {
             if (!listForm.Visible) return;
@@ -183,7 +171,6 @@ namespace MiLauncherFW
             Activate();
         }
 
-        // Crawl folder downwards
         private void CrawlDownward()
         {
             if (!listForm.Visible) return;
@@ -205,7 +192,6 @@ namespace MiLauncherFW
             Activate();
         }
 
-        // Exit crawl mode
         private void ExitCrawl()
         {
             if (!listForm.Visible) return;
