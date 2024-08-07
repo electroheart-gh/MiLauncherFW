@@ -70,6 +70,7 @@ namespace MiLauncherFW
         private async void MainForm_Load(object sender, EventArgs e)
         {
             // Global Hot Key
+            // TODO: CMIC by keymap.json
             hotKey = new HotKey(MOD_KEY.ALT | MOD_KEY.CONTROL, Keys.F);
             hotKey.HotKeyPush += new EventHandler(hotKey_HotKeyPush);
 

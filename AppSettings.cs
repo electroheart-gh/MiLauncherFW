@@ -21,9 +21,10 @@ namespace MiLauncherFW
         public float ListViewFontSize { get; set; }
 
         public bool OpenDirectoryItself { get; set; }
-        public bool SaveFileListWhenHide{ get; set; }
+        public bool SaveFileListWhenHide { get; set; }
 
-
+        public string LogFileName { get; set; }
+        public string LogLevel { get; set; }
 
         public AppSettings()
         {
@@ -42,7 +43,6 @@ namespace MiLauncherFW
             ListViewFontSize = 9.75F;
 
             OpenDirectoryItself = false;
-            // TODO: settings for Keymap 
             // TODO: settings for specific application to open file, such as sakura
         }
     }

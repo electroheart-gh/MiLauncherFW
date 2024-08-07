@@ -12,23 +12,38 @@ namespace MiLauncherFW
     // Used to save(load) both a set of searched files and Application Settings
     internal class SettingManager
     {
-        private static readonly JsonSerializerOptions s_writeOptions = new JsonSerializerOptions() {
+        private static readonly JsonSerializerOptions writeOptions = new JsonSerializerOptions() {
             WriteIndented = true
         };
 
-        public static void SaveSettings<T>(T settingsObject, string path)
+        public static void SaveSettings<T>(T settingsObject, string path, bool escaping = true)
         {
-            File.WriteAllText(path, JsonSerializer.Serialize(settingsObject, s_writeOptions));
+            if (!escaping) {
+                writeOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+            }
+
+            var tempFileName = path + ".temp";
+            File.WriteAllText(tempFileName, JsonSerializer.Serialize(settingsObject, writeOptions));
+
+            try {
+                File.Delete(path);
+            }
+            catch (Exception e) {
+                Logger.LogError(e.Message);
+            }
+
+            try {
+                File.Move(tempFileName, path);
+            }
+            catch (Exception e) {
+                Logger.LogError(e.Message);
+            }
+            Logger.LogInfo($"Saved {path}");
         }
 
         public static void SaveSettingsNoEscape<T>(T settingsObject, string path)
         {
-            JsonSerializerOptions options = new JsonSerializerOptions() {
-                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
-                WriteIndented = true
-            };
-
-            File.WriteAllText(path, JsonSerializer.Serialize(settingsObject, options));
+            SaveSettings(settingsObject, path, false);
         }
 
         public static T LoadSettings<T>(string path)
@@ -36,8 +51,8 @@ namespace MiLauncherFW
             try {
                 return JsonSerializer.Deserialize<T>(File.ReadAllText(path));
             }
-            catch (Exception ex) {
-                Console.WriteLine($"Error loading settings: {ex.Message}");
+            catch (Exception e) {
+                Logger.LogError(e.Message);
                 return default;
             }
         }

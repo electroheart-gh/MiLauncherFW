@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
     <Compile Include="CrawlMode.cs" />
+    <Compile Include="CustomTraceListener.cs" />
     <Compile Include="DirectorySearch.cs" />
     <Compile Include="FileNameFilter.cs" />
     <Compile Include="FileSet.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="ListForm.Designer.cs">
       <DependentUpon>ListForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Logger.cs" />
     <Compile Include="MainForm.Commands.cs">
       <SubType>Form</SubType>
     </Compile>
