@@ -35,16 +35,15 @@ namespace MiLauncherFW
         {
             foreach (var filter in regexFilters) {
                 var maybePrefix = filter.Substring(0, 1);
-                var maybeSuffix = filter.Substring(1);
 
                 if (maybePrefix == unmatchPath) {
-                    if (Contains(fileStats.FullPathName, maybeSuffix)) return false;
+                    if (Contains(fileStats.FullPathName, filter.Substring(1))) return false;
                 }
                 else if (maybePrefix == unmatchName) {
-                    if (Contains(fileStats.FileName, maybeSuffix)) return false;
+                    if (Contains(fileStats.FileName, filter.Substring(1))) return false;
                 }
                 else if (maybePrefix == matchPath) {
-                    if (!Contains(fileStats.FullPathName, maybeSuffix)) return false;
+                    if (!Contains(fileStats.FullPathName, filter.Substring(1))) return false;
                 }
                 else {
                     if (!Contains(fileStats.FileName, filter)) return false;
@@ -59,7 +58,7 @@ namespace MiLauncherFW
             if (pattern.Length < Program.appSettings.MinMigemoLength) {
                 return name.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) != -1;
             }
-            // Migemo matching
+            // Migemo matching - catch if migemoTransform failed to create regex
             else {
                 try {
                     return Regex.IsMatch(name, pattern.ToString(), RegexOptions.IgnoreCase);

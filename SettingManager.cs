@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
+using System.Threading.Tasks;
 
 namespace MiLauncherFW
 {
@@ -18,27 +19,29 @@ namespace MiLauncherFW
 
         public static void SaveSettings<T>(T settingsObject, string path, bool escaping = true)
         {
-            if (!escaping) {
-                writeOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
-            }
+            // Fire and forget pattern
+            Task.Run(() =>
+            {
+                if (!escaping) writeOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
 
-            var tempFileName = path + ".temp";
-            File.WriteAllText(tempFileName, JsonSerializer.Serialize(settingsObject, writeOptions));
+                var tempFileName = path + ".temp";
+                File.WriteAllText(tempFileName, JsonSerializer.Serialize(settingsObject, writeOptions));
 
-            try {
-                File.Delete(path);
-            }
-            catch (Exception e) {
-                Logger.LogError(e.Message);
-            }
+                try {
+                    File.Delete(path);
+                }
+                catch (Exception e) {
+                    Logger.LogError(e.Message);
+                }
 
-            try {
-                File.Move(tempFileName, path);
-            }
-            catch (Exception e) {
-                Logger.LogError(e.Message);
-            }
-            Logger.LogInfo($"Saved {path}");
+                try {
+                    File.Move(tempFileName, path);
+                }
+                catch (Exception e) {
+                    Logger.LogError(e.Message);
+                }
+                Logger.LogInfo($"Saved {path}");
+            });
         }
 
         public static void SaveSettingsNoEscape<T>(T settingsObject, string path)
