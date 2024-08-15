@@ -31,9 +31,10 @@ namespace MiLauncherFW
         }
         public FileStats(string pathName)
         {
-            FullPathName = pathName;
-            FileName = Path.GetFileName(pathName);
-            ShortPathName = GetShortenedString(pathName);
+            var dirSuffix = Directory.Exists(pathName) ? "\\" : "";
+            FullPathName = pathName + dirSuffix;
+            FileName = Path.GetFileName(pathName) + dirSuffix;
+            ShortPathName = GetShortenedString(pathName + dirSuffix);
             UpdateTime = File.GetLastWriteTime(pathName);
             Priority = 0;
             ExecTime = default;
