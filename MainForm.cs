@@ -115,6 +115,10 @@ namespace MiLauncherFW
             keyMapController.RegisterAction("SortByPath", () => listForm.SortBy(SortKeyOption.FullPathName));
             keyMapController.RegisterAction("SortByUpdateTime", () => listForm.SortBy(SortKeyOption.UpdateTime));
             keyMapController.RegisterAction("CopyPath", listForm.CopyPath);
+            keyMapController.RegisterAction("IncrementPriority", () => listForm.IncrementPriority(1));
+            keyMapController.RegisterAction("IncrementMorePriority", () => listForm.IncrementPriority(5));
+            keyMapController.RegisterAction("DecrementPriority", () => listForm.IncrementPriority(-1));
+            keyMapController.RegisterAction("DecrementMorePriority", () => listForm.IncrementPriority(-5));
 
             keyMapController.LoadKeyMapFromFile("keymap.json");
 

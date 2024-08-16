@@ -116,9 +116,8 @@ namespace MiLauncherFW
         //
         // Methods
         //
-        internal void SetVirtualList(List<FileStats> sourceItems = null)
+        internal void SetVirtualList(List<FileStats> sourceItems)
         {
-            sourceItems = sourceItems ?? ListViewItems;
             ListViewItems = sourceItems.OrderByDescending(x => x.SortValue(SortKey)).ToList();
             listView.VirtualListSize = ListViewItems.Count;
         }
@@ -127,7 +126,6 @@ namespace MiLauncherFW
         {
             return (Visible & listView.VirtualListSize > 0) ? ListViewItems[VirtualListIndex] : null;
         }
-
 
         internal void ShowAt(int? x = null, int? y = null, int index = 0)
         {
@@ -194,11 +192,11 @@ namespace MiLauncherFW
             Header.Text += FileStats.GetShortenedString(ModeCaptions.Item2, baseWidth) ?? ModeCaptions.Item2;
         }
 
-        internal void ChangeSortKey(SortKeyOption sortKey)
-        {
-            SortKey = sortKey;
-            SetVirtualList();
-        }
+        //internal void ChangeSortKey(SortKeyOption sortKey)
+        //{
+        //    SortKey = sortKey;
+        //    SetVirtualList();
+        //}
 
         private static int PositiveModulo(int x, int y)
         {
@@ -241,18 +239,29 @@ namespace MiLauncherFW
                 AdjustWidth();
         }
 
-        // Sort by a key
-        internal void SortBy(SortKeyOption option)
+        internal void SortBy(SortKeyOption? option = null)
         {
             if (!Visible) return;
-            ChangeSortKey(option);
+
+            SortKey = option ?? SortKey;
+            ListViewItems = ListViewItems.OrderByDescending(x => x.SortValue(SortKey)).ToList();
             ShowAt();
         }
 
-        // Copy file path to clipboard
         internal void CopyPath()
         {
             Clipboard.SetText(CurrentItem().FullPathName);
+        }
+
+        internal void IncrementPriority(int delta)
+        {
+            if (CurrentItem() == null) return;
+
+            var orgPathName = CurrentItem().FullPathName;
+            CurrentItem().Priority += delta;
+            ListViewItems = ListViewItems.OrderByDescending(x => x.SortValue(SortKey)).ToList();
+            var orgPathIndex = ListViewItems.FindIndex(x => x.FullPathName == orgPathName);
+            ShowAt(null, null, orgPathIndex);
         }
     }
 }

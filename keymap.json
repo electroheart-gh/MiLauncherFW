@@ -29,5 +29,10 @@
   "SortByPath": [ "C-D9" ],
   "SortByUpdateTime": [ "C-D0" ],
 
-  "CopyPath": [ "C-c" ]
+  "CopyPath": [ "C-c" ],
+
+  "IncrementPriority": [ "C-Up" ],
+  "IncrementMorePriority": [ "S-C-Up" ],
+  "DecrementPriority": [ "C-Down" ],
+  "DecrementMorePriority": [ "C-S-Down" ]
 }
