@@ -34,7 +34,15 @@ namespace MiLauncherFW
             var dirSuffix = Directory.Exists(pathName) ? "\\" : "";
             FullPathName = pathName + dirSuffix;
             FileName = Path.GetFileName(pathName) + dirSuffix;
+
+            // Considering balance of response, performance, file size and accuracy, 
+            // GetShortenedString() estimates width without DirectorySeparation (giving up accuracy)
+            // FileStats() stores null if it is not shortened  
+            // listView_RetrieveVirtualItem() controls text of list item with DirectorySeparation,
+            // because AutoResizeColumns() seems to check return of RetrieveVirtualItem()
+            // listView_DrawItem() controls color of item text
             ShortPathName = GetShortenedString(pathName + dirSuffix);
+
             UpdateTime = File.GetLastWriteTime(pathName);
             Priority = 0;
             ExecTime = default;

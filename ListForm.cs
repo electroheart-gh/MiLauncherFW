@@ -62,21 +62,31 @@ namespace MiLauncherFW
                 e.Graphics.FillRectangle(new SolidBrush(MainForm.colorPattern4), e.Bounds);
             }
 
-            // by GDI, insert blank between directory name
-            string directoryName = Path.GetDirectoryName(e.Item.Text) + "\\";
-            string fileName = Path.GetFileName(e.Item.Text);
+            // e.Item.Text may contain DirectorySeparation space, but it does not affect for now
+            var match = Regex.Match(e.Item.Text, @"^(?<Directory>.*\\)(?<File>[^\\]+\\?)$");
+
+            var directoryName = match.Groups["Directory"].Value;
+            var fileName = match.Groups["File"].Value;
+            var fileNameColor = fileName.EndsWith("\\") ? MainForm.colorPattern3 : MainForm.colorPattern5;
 
             Rectangle bounds = e.Bounds;
-            TextRenderer.DrawText(e.Graphics, directoryName, e.Item.Font, bounds, e.Item.ForeColor, TextFormatFlags.NoPadding);
-            bounds.X += TextRenderer.MeasureText(e.Graphics, directoryName, e.Item.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
-            TextRenderer.DrawText(e.Graphics, fileName, e.Item.Font, bounds, MainForm.colorPattern5, TextFormatFlags.NoPadding);
+            TextRenderer.DrawText(e.Graphics, directoryName, e.Item.Font, bounds, e.Item.ForeColor,
+                                  TextFormatFlags.NoPadding);
+            bounds.X += TextRenderer.MeasureText(e.Graphics, directoryName, e.Item.Font, Size.Empty,
+                                                 TextFormatFlags.NoPadding).Width;
+            TextRenderer.DrawText(e.Graphics, fileName, e.Item.Font, bounds, fileNameColor, TextFormatFlags.NoPadding);
         }
 
         private void listView_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
         {
-            // Insert blank between directory name
-            var displayString = (ListViewItems[e.ItemIndex].ShortPathName ?? ListViewItems[e.ItemIndex].FullPathName).Replace("\\", "\\ ");
-            e.Item = new ListViewItem(displayString);
+            var pathName = ListViewItems[e.ItemIndex].ShortPathName
+                                ?? ListViewItems[e.ItemIndex].FullPathName;
+
+            var itemText = Program.appSettings.DirectorySeparation
+                           ? Regex.Replace(pathName, @"\\(?=.)", "\\ ")
+                           : pathName;
+
+            e.Item = new ListViewItem(itemText);
         }
 
         private void listView_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
@@ -89,21 +99,29 @@ namespace MiLauncherFW
             // Capture SortKey name and value
             var sortKeyMatch = Regex.Match(e.Header.Text, @"^(<[^>]*>)([^<]*)");
             // Display SortKey name
-            TextRenderer.DrawText(e.Graphics, sortKeyMatch.Groups[1].Value, e.Font, bounds, Color.White, TextFormatFlags.NoPadding);
-            bounds.X += TextRenderer.MeasureText(e.Graphics, sortKeyMatch.Groups[1].Value, e.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+            TextRenderer.DrawText(e.Graphics, sortKeyMatch.Groups[1].Value, e.Font, bounds, Color.White,
+                                  TextFormatFlags.NoPadding);
+            bounds.X += TextRenderer.MeasureText(e.Graphics, sortKeyMatch.Groups[1].Value, e.Font,
+                                                 Size.Empty, TextFormatFlags.NoPadding).Width;
             // Display SortKey value with specified color
-            TextRenderer.DrawText(e.Graphics, sortKeyMatch.Groups[2].Value, e.Font, bounds, MainForm.colorPattern5, TextFormatFlags.NoPadding);
-            bounds.X += TextRenderer.MeasureText(e.Graphics, sortKeyMatch.Groups[2].Value, e.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+            TextRenderer.DrawText(e.Graphics, sortKeyMatch.Groups[2].Value, e.Font, bounds,
+                                  MainForm.colorPattern5, TextFormatFlags.NoPadding);
+            bounds.X += TextRenderer.MeasureText(e.Graphics, sortKeyMatch.Groups[2].Value, e.Font,
+                                                 Size.Empty, TextFormatFlags.NoPadding).Width;
 
             // Capture CrawlMode name and CrawlPath
             var crawlModeMatch = Regex.Match(e.Header.Text, @"(<CrawlMode> .*\\)(.*)");
             if (crawlModeMatch.Success) {
                 // Display SortKey name
-                TextRenderer.DrawText(e.Graphics, crawlModeMatch.Groups[1].Value, e.Font, bounds, Color.White, TextFormatFlags.NoPadding);
-                bounds.X += TextRenderer.MeasureText(e.Graphics, crawlModeMatch.Groups[1].Value, e.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+                TextRenderer.DrawText(e.Graphics, crawlModeMatch.Groups[1].Value, e.Font, bounds, Color.White,
+                                      TextFormatFlags.NoPadding);
+                bounds.X += TextRenderer.MeasureText(e.Graphics, crawlModeMatch.Groups[1].Value, e.Font,
+                                                     Size.Empty, TextFormatFlags.NoPadding).Width;
                 // Display SortKey value with specified color
-                TextRenderer.DrawText(e.Graphics, crawlModeMatch.Groups[2].Value, e.Font, bounds, MainForm.colorPattern5, TextFormatFlags.NoPadding);
-                bounds.X += TextRenderer.MeasureText(e.Graphics, crawlModeMatch.Groups[2].Value, e.Font, Size.Empty, TextFormatFlags.NoPadding).Width;
+                TextRenderer.DrawText(e.Graphics, crawlModeMatch.Groups[2].Value, e.Font, bounds,
+                                      MainForm.colorPattern5, TextFormatFlags.NoPadding);
+                bounds.X += TextRenderer.MeasureText(e.Graphics, crawlModeMatch.Groups[2].Value, e.Font,
+                                                     Size.Empty, TextFormatFlags.NoPadding).Width;
             }
         }
 
@@ -157,8 +175,11 @@ namespace MiLauncherFW
 
         internal void AdjustHeight()
         {
+            var heightPerLine = listView.GetItemRect(0).Height;
+            var lineCount = Math.Min(Program.appSettings.MaxListLine, listView.VirtualListSize + 1);
+
             // TODO: CMICst, 30 is Column header height
-            Height = listView.GetItemRect(0).Height * Math.Min(Program.appSettings.MaxListLine, listView.VirtualListSize + 1) + 30;
+            Height = heightPerLine * lineCount + 30;
         }
 
         internal void AdjustWidth()
@@ -191,12 +212,6 @@ namespace MiLauncherFW
             var baseWidth = TextRenderer.MeasureText(Header.Text, listView.Font).Width;
             Header.Text += FileStats.GetShortenedString(ModeCaptions.Item2, baseWidth) ?? ModeCaptions.Item2;
         }
-
-        //internal void ChangeSortKey(SortKeyOption sortKey)
-        //{
-        //    SortKey = sortKey;
-        //    SetVirtualList();
-        //}
 
         private static int PositiveModulo(int x, int y)
         {

@@ -20,11 +20,11 @@ namespace MiLauncherFW
         private const int CS_DROPSHADOW = 0x00020000;
 
         // Static Variables
-        internal static Color colorPattern1 = ColorTranslator.FromHtml("#28385E");
-        internal static Color colorPattern2 = ColorTranslator.FromHtml("#516C8D");
-        internal static Color colorPattern3 = ColorTranslator.FromHtml("#6A91C1");
-        internal static Color colorPattern4 = ColorTranslator.FromHtml("#CCCCCC");
-        internal static Color colorPattern5 = ColorTranslator.FromHtml("#FF9800");
+        internal static Color colorPattern1 = ColorTranslator.FromHtml("#28385E"); // dark navy
+        internal static Color colorPattern2 = ColorTranslator.FromHtml("#516C8D"); // grayish blue
+        internal static Color colorPattern3 = ColorTranslator.FromHtml("#6A91C1"); // bright blue
+        internal static Color colorPattern4 = ColorTranslator.FromHtml("#CCCCCC"); // gray
+        internal static Color colorPattern5 = ColorTranslator.FromHtml("#FF9800"); // orange
 
         // Variables
         private Point dragStart;

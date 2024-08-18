@@ -25,6 +25,7 @@ namespace MiLauncherFW
 
         public string LogFileName { get; set; }
         public string LogLevel { get; set; }
+        public bool DirectorySeparation { get; set; }
 
         public AppSettings()
         {
@@ -43,7 +44,7 @@ namespace MiLauncherFW
             ListViewFontSize = 9.75F;
 
             OpenDirectoryItself = false;
-            // TODO: settings for specific application to open file, such as sakura
+            DirectorySeparation = true;
         }
     }
 }

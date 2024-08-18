@@ -24,6 +24,7 @@ namespace MiLauncherFW
             {
                 if (!escaping) writeOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
 
+                // To minimize risk of file corruption, create temp file and then rename it
                 var tempFileName = path + ".temp";
                 File.WriteAllText(tempFileName, JsonSerializer.Serialize(settingsObject, writeOptions));
 
