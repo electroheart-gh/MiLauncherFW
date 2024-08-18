@@ -13,7 +13,10 @@ namespace MiLauncherFW
     // Used to save(load) both a set of searched files and Application Settings
     internal class SettingManager
     {
-        private static readonly JsonSerializerOptions writeOptions = new JsonSerializerOptions() {
+        //
+        // Save
+        //
+        private static JsonSerializerOptions writeOptions = new JsonSerializerOptions() {
             WriteIndented = true
         };
 
@@ -34,14 +37,13 @@ namespace MiLauncherFW
                 catch (Exception e) {
                     Logger.LogError(e.Message);
                 }
-
                 try {
                     File.Move(tempFileName, path);
                 }
                 catch (Exception e) {
                     Logger.LogError(e.Message);
                 }
-                Logger.LogInfo($"Saved {path}");
+                Logger.LogInfo($"SaveSettings finished: {path}");
             });
         }
 
@@ -50,10 +52,18 @@ namespace MiLauncherFW
             SaveSettings(settingsObject, path, false);
         }
 
+        //
+        // Load
+        //
+        private static JsonSerializerOptions readOptions = new JsonSerializerOptions() {
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true,
+        };
+
         public static T LoadSettings<T>(string path)
         {
             try {
-                return JsonSerializer.Deserialize<T>(File.ReadAllText(path));
+                return JsonSerializer.Deserialize<T>(File.ReadAllText(path), readOptions);
             }
             catch (Exception e) {
                 Logger.LogError(e.Message);

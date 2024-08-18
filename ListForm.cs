@@ -80,12 +80,10 @@ namespace MiLauncherFW
         private void listView_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
         {
             var pathName = ListViewItems[e.ItemIndex].ShortPathName
-                                ?? ListViewItems[e.ItemIndex].FullPathName;
-
+                           ?? ListViewItems[e.ItemIndex].FullPathName;
             var itemText = Program.appSettings.DirectorySeparation
                            ? Regex.Replace(pathName, @"\\(?=.)", "\\ ")
                            : pathName;
-
             e.Item = new ListViewItem(itemText);
         }
 
