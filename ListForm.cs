@@ -104,11 +104,12 @@ namespace MiLauncherFW
             // Display SortKey value with specified color
             TextRenderer.DrawText(e.Graphics, sortKeyMatch.Groups[2].Value, e.Font, bounds,
                                   MainForm.colorPattern5, TextFormatFlags.NoPadding);
+
             bounds.X += TextRenderer.MeasureText(e.Graphics, sortKeyMatch.Groups[2].Value, e.Font,
                                                  Size.Empty, TextFormatFlags.NoPadding).Width;
 
             // Capture CrawlMode name and CrawlPath
-            var crawlModeMatch = Regex.Match(e.Header.Text, @"(<CrawlMode> .*\\)(.*)");
+            var crawlModeMatch = Regex.Match(e.Header.Text, @"(<CrawlMode> .*\\)([^\\]+\\)");
             if (crawlModeMatch.Success) {
                 // Display SortKey name
                 TextRenderer.DrawText(e.Graphics, crawlModeMatch.Groups[1].Value, e.Font, bounds, Color.White,
@@ -252,12 +253,20 @@ namespace MiLauncherFW
                 AdjustWidth();
         }
 
-        internal void SortBy(SortKeyOption? option = null)
+        internal void SortByDescending(SortKeyOption? option = null)
         {
             if (!Visible) return;
 
             SortKey = option ?? SortKey;
             ListViewItems = ListViewItems.OrderByDescending(x => x.SortValue(SortKey)).ToList();
+            ShowAt();
+        }
+        internal void SortBy(SortKeyOption? option = null)
+        {
+            if (!Visible) return;
+
+            SortKey = option ?? SortKey;
+            ListViewItems = ListViewItems.OrderBy(x => x.SortValue(SortKey)).ToList();
             ShowAt();
         }
 

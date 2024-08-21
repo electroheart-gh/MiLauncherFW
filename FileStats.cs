@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace MiLauncherFW
@@ -85,6 +86,12 @@ namespace MiLauncherFW
                 str = str.Substring(1);
             }
             return "..." + str;
+        }
+
+        internal static string ParentPathName(string path)
+        {
+            var match = Regex.Match(path, @"^(?<parent>.*\\)(?<base>[^\\]+\\?)$");
+            return match.Success ? match.Groups["parent"].Value : null;
         }
     }
 

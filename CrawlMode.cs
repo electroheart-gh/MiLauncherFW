@@ -44,7 +44,7 @@ namespace MiLauncherFW
         {
             CrawlFileSet = CrawlFileSet.ImportPriorityAndExecTime(sourceFileSet);
             if (Program.appSettings.TargetFolders.Any(x => CrawlPath.StartsWith(x))) {
-                sourceFileSet.RemoveWhere(x => Path.GetDirectoryName(x.FullPathName) == CrawlPath);
+                sourceFileSet.RemoveWhere(x => FileStats.ParentPathName(x.FullPathName) == CrawlPath);
                 sourceFileSet.UnionWith(CrawlFileSet);
             }
             Status = ModeStatus.Active;

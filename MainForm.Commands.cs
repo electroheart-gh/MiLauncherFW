@@ -50,7 +50,7 @@ namespace MiLauncherFW
                 var targetDirectoryName = (Program.appSettings.OpenDirectoryItself &&
                                            Directory.Exists(execFileStats.FullPathName))
                                         ? execFileStats.FullPathName
-                                        : Path.GetDirectoryName(execFileStats.FullPathName);
+                                        : FileStats.ParentPathName(execFileStats.FullPathName);
                 Process.Start("explorer.exe", targetDirectoryName);
                 // TODO: CMIC priority +1
                 var fileStats = searchedFileSet.FirstOrDefault(x => x.FullPathName == targetDirectoryName);

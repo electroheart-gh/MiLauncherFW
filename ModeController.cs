@@ -28,14 +28,15 @@ namespace MiLauncherFW
             // Returns false when no change needed
             // If Crawl mode active, use CrawlPath instead of itemPath
             if (IsCrawlMode()) {
-                var upperPath = Path.GetDirectoryName(CrawlMode.CrawlPath);
+                var upperPath = FileStats.ParentPathName(CrawlMode.CrawlPath);
+                Logger.LogError($"upperPath: {upperPath}");
                 CrawlMode crawlResult = CrawlMode.Crawl(upperPath);
                 if ((crawlResult is null) || (crawlResult.Status == ModeStatus.Defective)) return false;
                 CrawlMode = crawlResult;
                 return true;
             }
             else {
-                CrawlMode = CrawlMode.Crawl(Path.GetDirectoryName(itemPath));
+                CrawlMode = CrawlMode.Crawl(FileStats.ParentPathName(itemPath));
                 return CrawlMode != null;
             }
         }

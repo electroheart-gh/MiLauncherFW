@@ -110,10 +110,10 @@ namespace MiLauncherFW
 
             keyMapController.RegisterAction("SelectNextItem", listForm.SelectNextItem);
             keyMapController.RegisterAction("SelectPrevItem", listForm.SelectPreviousItem);
-            keyMapController.RegisterAction("SortByPriority", () => listForm.SortBy(SortKeyOption.Priority));
-            keyMapController.RegisterAction("SortByExecTime", () => listForm.SortBy(SortKeyOption.ExecTime));
+            keyMapController.RegisterAction("SortByPriority", () => listForm.SortByDescending(SortKeyOption.Priority));
+            keyMapController.RegisterAction("SortByExecTime", () => listForm.SortByDescending(SortKeyOption.ExecTime));
             keyMapController.RegisterAction("SortByPath", () => listForm.SortBy(SortKeyOption.FullPathName));
-            keyMapController.RegisterAction("SortByUpdateTime", () => listForm.SortBy(SortKeyOption.UpdateTime));
+            keyMapController.RegisterAction("SortByUpdateTime", () => listForm.SortByDescending(SortKeyOption.UpdateTime));
             keyMapController.RegisterAction("CopyPath", listForm.CopyPath);
             keyMapController.RegisterAction("IncrementPriority", () => listForm.IncrementPriority(1));
             keyMapController.RegisterAction("IncrementMorePriority", () => listForm.IncrementPriority(5));

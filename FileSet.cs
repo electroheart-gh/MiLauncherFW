@@ -11,6 +11,7 @@ namespace MiLauncherFW
     /// </summary>
     internal static class FileSet
     {
+        // Returns List<> for intended use and performance
         internal static List<FileStats> FilterWithCancellation
             (this IEnumerable<FileStats> sourceFiles, FileNameFilter filters, CancellationToken token)
         {
@@ -62,8 +63,7 @@ namespace MiLauncherFW
                 searchPaths.SelectMany(
                     x => EnumerateAllFileSystemEntries(x).Select(fn => new FileStats(fn))));
         }
-
-        public static IEnumerable<string> EnumerateAllFileSystemEntries(string path)
+        private static IEnumerable<string> EnumerateAllFileSystemEntries(string path)
         {
             return EnumerateAllFileSystemEntries(path, "*");
         }
@@ -84,7 +84,5 @@ namespace MiLauncherFW
             }
             return files;
         }
-
-
     }
 }
